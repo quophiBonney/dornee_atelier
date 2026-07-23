@@ -33,7 +33,7 @@ const Navbar = () => {
           isScrolled ? "bg-white shadow-lg py-4" : "bg-gray-300/2 py-2"
         }`}
       >
-        <div className="flex w-full items-center justify-between px-6 lg:px-20">
+        <div className="flex w-full items-center justify-between px-2 lg:px-20">
           {/* Logo */}
           <Link
             to="/"
