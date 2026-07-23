@@ -68,7 +68,7 @@ export default function DorneeHomeSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-white px-6 py-24 sm:py-32"
+      className="relative overflow-hidden bg-white px-6 mt-10"
     >
       {/* Ambient red glow */}
       <div className="absolute inset-0 opacity-60" />
@@ -119,7 +119,7 @@ export default function DorneeHomeSection() {
 
         {/* Visual column */}
         <div className="relative flex justify-center lg:justify-end">
-          <div className="relative h-[380px] w-[300px] sm:h-[440px] sm:w-[800px]">
+          <div className="relative h-[380px] w-full sm:h-[440px] sm:w-[800px]">
             <img src={img1} alt="" className="w-full object-cover" />
           </div>
         </div>
