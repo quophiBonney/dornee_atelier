@@ -9,24 +9,6 @@ import {
   FiLock,
 } from "react-icons/fi";
 
-/**
- * BookingModal
- * Fashion-atelier consultation booking form with a Paystack-powered
- * booking-fee step.
- *
- * npm i gsap @gsap/react react-icons
- * (Paystack Inline is loaded at runtime — no extra package needed.)
- *
- * Before shipping:
- *   1. Replace PAYSTACK_PUBLIC_KEY below with your real Paystack public key.
- *   2. Adjust SERVICE_FEES / CURRENCY to match your pricing.
- *   3. Wire the `callback` in handlePayment to your booking/CRM endpoint
- *      to persist the reference once payment succeeds.
- *
- * Usage:
- *   <BookingModal open={isOpen} onClose={() => setIsOpen(false)} />
- */
-
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 const CURRENCY = "GHS";
 
@@ -231,7 +213,7 @@ export default function BookingModal({ open, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="dornee-booking-title"
-      className="fixed inset-0 z-50 hidden items-center justify-center bg-[#0E0C0D]/72 backdrop-blur-sm px-4 py-8"
+      className="fixed inset-0 z-50 hidden items-center justify-center bg-[#0E0C0D]/72 backdrop-blur-sm px-4 py-8 overflow-y-scroll"
       onMouseDown={(e) => e.target === overlayRef.current && onClose?.()}
     >
       <div

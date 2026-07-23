@@ -119,7 +119,7 @@ export default function DorneeHomeSection() {
 
         {/* Visual column */}
         <div className="relative flex justify-center lg:justify-end">
-          <div className="relative h-[380px] w-full sm:h-[440px] sm:w-[800px]">
+          <div className="relative h-full w-full sm:h-[440px] sm:w-[800px]">
             <img src={img1} alt="" className="w-full object-cover" />
           </div>
         </div>

@@ -30,10 +30,10 @@ const Navbar = () => {
     <>
       <header
         className={`fixed h-28 left-0 -top-5 z-50 w-full transition-all duration-500 ${
-          isScrolled ? "bg-white shadow-lg py-4" : "bg-gray-300/2 py-2"
+          isScrolled ? "bg-white shadow-lg py-4" : "bg-gray-300/2 py-3"
         }`}
       >
-        <div className="flex w-full items-center justify-between px-2 lg:px-20">
+        <div className="flex w-full items-center justify-between px-3 lg:px-20">
           {/* Logo */}
           <Link
             to="/"
@@ -44,7 +44,7 @@ const Navbar = () => {
             <img
               src={logo}
               alt="Dornee Atelier"
-              className="h-28 object-cover"
+              className="h-20 lg:h-28 object-cover"
             />
           </Link>
 
