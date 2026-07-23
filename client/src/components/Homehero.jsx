@@ -97,7 +97,7 @@ const Homehero = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.06),_transparent_50%)]" />
 
-                <div className="mt-24 relative z-10 flex h-full items-end pb-24 lg:items-center lg:pb-0">
+                <div className="mt-10 lg:mt-24 relative z-10 flex h-full items-end pb-24 lg:items-center lg:pb-0">
                   <div className="mx-auto w-full max-w-7xl px-6 sm:px-10 lg:px-16">
                     <div className="max-w-3xl text-white">
                       <div
