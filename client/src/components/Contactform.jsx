@@ -1,52 +1,138 @@
-import React from 'react'
-import contact from '../assets/contact.svg'
-const Contactform = () => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 mt-10 p-4 overflow-hidden">
-        <div data-aos="fade-right" data-aos-duration="1000">
-            <img src={contact}/> 
-            </div>
-            <div data-aos="fade-left" data-aos-duration="1000" className="">
-                <h3 className="text-xl lg:text-2xl font-bold">Write to Us</h3>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime in, officiis quae excepturi nesciunt molestiae reprehenderit minus. Nemo, doloremque laborum.</p>
-                <form>
-              <div className="flex flex-col lg:flex-row gap-3">
-                  <div className="mt-3 w-full">
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="name" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3" placeholder="Your name" />
-                </div>
-                <div className="mt-3 w-full">
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="email" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3" placeholder="Your email" />
-                </div>
-                </div>
-                <div className="flex flex-col lg:flex-row gap-3">
-                <div className="mt-3 w-full">
-                    <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
-                    <input type="location" id="location" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3" placeholder="Your location or city" />
-                </div>
-                <div className="mt-3 w-full">
-                   <label htmlFor="date" className="block text-sm font-medium text-gray-700">Date of Event?</label>
-                    <input type="date" id="date" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3" placeholder="Describe your oder" />
-                </div>
-                </div>
-                <div className="mt-3">
-                   <label htmlFor="order" className="block text-sm font-medium text-gray-700">What Do You Want Order?</label>
-                    <textarea id="message" rows={4} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3" placeholder="Describe your oder"></textarea>
-                </div>
-                
-                <div className="mt-3">
-                    <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-300 hover:cursor-pointer w-full">Send Order</button>
-                   
-                </div>
-                <div className="mt-3 border-1 border-red-500 p-2 rounded-lg flex justify-center">
-                    <small className="text-red-600 font-bold">Payment made are not refundable.</small>
-                </div>
-                </form>
-            </div>
-            
-            </div>
-  )
-}
+import React, { useState } from "react";
+import {
+  User,
+  Mail,
+  MapPin,
+  Calendar,
+  MessageSquare,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
+import contact from "../assets/contact.svg";
 
-export default Contactform
+const fieldBase =
+  "peer w-full rounded-lg border border-[#E6E2DB] bg-white px-11 py-3.5 text-sm text-[#1C1A1B] outline-none transition-colors placeholder:text-transparent focus:border-[#B76E79]";
+
+const Field = ({ icon: Icon, label, ...props }) => (
+  <div className="relative w-full">
+    <Icon
+      size={17}
+      className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#1C1A1B]/35 peer-focus:text-[#B76E79]"
+    />
+    <input {...props} placeholder={label} className={fieldBase} />
+    <label
+      htmlFor={props.id}
+      className="pointer-events-none absolute left-11 top-3.5 origin-left -translate-y-0 text-sm text-[#1C1A1B]/45 transition-all
+        peer-focus:-translate-y-6 peer-focus:scale-90 peer-focus:text-[#B76E79]
+        peer-[&:not(:placeholder-shown)]:-translate-y-6 peer-[&:not(:placeholder-shown)]:scale-90 peer-[&:not(:placeholder-shown)]:text-[#1C1A1B]/60"
+    >
+      {label}
+    </label>
+  </div>
+);
+
+const Contactform = () => {
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setSubmitted(true);
+    }, 900);
+  };
+
+  return (
+    <section className="overflow-hidden bg-[#FAF8F5] px-4 py-20 lg:px-16">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
+        <div
+          data-aos="fade-right"
+          data-aos-duration="1000"
+          className="hidden lg:block"
+        >
+          <img src={contact} alt="" className="w-full" />
+        </div>
+
+        <div data-aos="fade-left" data-aos-duration="1000">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#B76E79]">
+            Get in touch
+          </p>
+          <h3 className="mt-3 font-['Fraunces'] text-3xl leading-tight text-[#1C1A1B] lg:text-4xl">
+            Write to Us
+          </h3>
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-[#1C1A1B]/60">
+            Tell us about the piece you have in mind — style, occasion, and
+            timeline — and our team will follow up within one business day.
+          </p>
+
+          {submitted ? (
+            <div className="mt-8 flex items-start gap-3 rounded-xl border border-[#B76E79]/30 bg-[#B76E79]/5 p-5">
+              <CheckCircle2
+                size={22}
+                className="mt-0.5 shrink-0 text-[#B76E79]"
+              />
+              <div>
+                <p className="font-semibold text-[#1C1A1B]">
+                  Order request sent
+                </p>
+                <p className="mt-1 text-sm text-[#1C1A1B]/60">
+                  Thank you — we'll reach out shortly to confirm the details.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Field
+                  icon={User}
+                  label="Your name"
+                  type="text"
+                  id="name"
+                  required
+                />
+                <Field
+                  icon={Mail}
+                  label="Your email"
+                  type="email"
+                  id="email"
+                  required
+                />
+              </div>
+
+              <div className="relative">
+                <MessageSquare
+                  size={17}
+                  className="pointer-events-none absolute left-4 top-4 text-[#1C1A1B]/35"
+                />
+                <textarea
+                  id="message"
+                  rows={4}
+                  required
+                  placeholder="What would you like to enquire about?"
+                  className="w-full resize-none rounded-lg border border-[#E6E2DB] bg-white py-3.5 pl-11 pr-4 text-sm text-[#1C1A1B] outline-none transition-colors placeholder:text-[#1C1A1B]/40 focus:border-[#B76E79]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#BB0545] py-3.5 text-sm font-semibold text-[#F6F1EA] transition-colors hover:bg-[#B76E79] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {submitting ? "Sending..." : "Send Send Message"}
+                {!submitting && <ArrowRight size={16} />}
+              </button>
+
+              <p className="text-center text-xs text-[#1C1A1B]/45">
+                We get back to you at the shortest possible time.
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Contactform;

@@ -64,7 +64,7 @@ const Navbar = () => {
               />
             </Link>
             <Link
-              to="/menus"
+              to="/services"
               className={`font-serif group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
                 isScrolled ? "text-black" : "text-white"
               }`}
@@ -137,7 +137,7 @@ const Navbar = () => {
             Home
           </Link>
           <Link
-            to="/menus"
+            to="/services"
             onClick={() => setMobileOpen(false)}
             className="text-2xl font-medium text-black transition-transform duration-300 hover:scale-105"
           >

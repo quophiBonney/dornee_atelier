@@ -2,13 +2,6 @@ import { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
-/**
- * AboutHero
- * About page hero for Dornee — stacked serif headline with a
- * line-by-line reveal on load.
- *
- * npm i gsap @gsap/react
- */
 export default function ContactHero() {
   const heroRef = useRef(null);
 
@@ -19,25 +12,25 @@ export default function ContactHero() {
       tl.fromTo(
         "[data-eyebrow]",
         { opacity: 0, y: 12 },
-        { opacity: 1, y: 0, duration: 0.5 }
+        { opacity: 1, y: 0, duration: 0.5 },
       )
         .fromTo(
           "[data-line]",
           { opacity: 0, y: "100%" },
           { opacity: 1, y: "0%", duration: 0.8, stagger: 0.1 },
-          "-=0.2"
+          "-=0.2",
         )
         .fromTo(
           "[data-sub]",
           { opacity: 0, y: 14 },
           { opacity: 1, y: 0, duration: 0.6 },
-          "-=0.35"
+          "-=0.35",
         )
         .fromTo(
           "[data-scrollcue]",
           { opacity: 0 },
           { opacity: 1, duration: 0.5 },
-          "-=0.2"
+          "-=0.2",
         );
 
       // Ambient scroll-cue drift, loops indefinitely
@@ -49,7 +42,7 @@ export default function ContactHero() {
         repeat: -1,
       });
     },
-    { scope: heroRef }
+    { scope: heroRef },
   );
 
   return (
@@ -76,22 +69,16 @@ export default function ContactHero() {
           data-eyebrow
           className="font-['Space_Mono'] text-[11px] uppercase tracking-[0.3em] text-[#B76E79]"
         >
-         
+          Get in Touch
         </p>
 
         <h1 className="mt-6 font-['Fraunces'] text-[15vw] leading-[0.92] text-[#F6F1EA] sm:text-[8rem] lg:text-[7.5rem]">
           {["Contact Us"].map((line) => (
             <span key={line} className="block overflow-hidden">
               <span data-line className="block">
-                {line.split(" ").map((word, i) =>
-                  word === "moves." ? (
-                    <em key={i} className="text-[#B76E79] not-italic">
-                      {word}
-                    </em>
-                  ) : (
-                    <span key={i}>{word}&nbsp;</span>
-                  )
-                )}
+                {line.split(" ").map((word, i) => (
+                  <span key={i}>{word}&nbsp;</span>
+                ))}
               </span>
             </span>
           ))}
@@ -101,10 +88,9 @@ export default function ContactHero() {
           data-sub
           className="mt-8 max-w-lg text-[15px] leading-relaxed text-[#F6F1EA]/60"
         >
-          Dornee began as a single sewing table in Accra and grew into a
-          studio built entirely around women — how they dress, move, and
-          want to be seen. Every collection is drafted, cut, and finished
-          in-house.
+          Have a question about an order, a custom piece, or a collaboration?
+          Reach out below and our team in Accra will get back to you within one
+          business day.
         </p>
       </div>
 

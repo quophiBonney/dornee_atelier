@@ -13,6 +13,7 @@ import Registration from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Test from "./pages/Test";
+import Services from "./pages/services";
 const App = () => {
   useEffect(() => {
     AOS.init();
@@ -35,6 +36,7 @@ const App = () => {
         />
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/auth/login" element={<Login />} />
+        <Route path="/services" element={<Services />} />
       </Routes>
       <Footer />
     </>

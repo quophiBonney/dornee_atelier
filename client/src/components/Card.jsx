@@ -1,52 +1,57 @@
-import React from 'react'
-import { Mail, MapPin, Phone } from 'lucide-react'
+import React from "react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 const cards = [
   {
-    title: 'Email Us',
-    description: 'dornee@gmail.com',
-    aos: 'flip-left',
+    title: "Email Us",
+    description: "dornee@gmail.com",
+    icon: Mail,
+    aos: "flip-left",
   },
   {
-    title: 'Visit Us',
-    description: 'Kanda, Accra - Ghana',
-    aos: 'flip-left',
+    title: "Visit Us",
+    description: "Kanda, Accra - Ghana",
+    icon: MapPin,
+    aos: "flip-left",
   },
   {
-    title: 'Contact Us',
-    description: '+233 XXX XXX XXX',
-    aos: 'flip-right',
+    title: "Contact Us",
+    description: "+233 XXX XXX XXX",
+    icon: Phone,
+    aos: "flip-right",
   },
-]
+];
 
 const Card = () => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4 lg:px-16 mt-10">
-      {cards.map((card, i) => (
-        <div
-          key={i}
-          className="bg-white border-2 border-[#BB0545] rounded-lg shadow-md p-6 text-gray-800 transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg"
-          data-aos={card.aos}
-          data-aos-duration="1000"
-        >
-          <h3 className="text-xl font-semibold mb-4 text-[#BB0545]">{card.title}</h3>
-          <p className="text-gray-600 mb-6">{card.description}</p>
+    <div className="grid grid-cols-1 gap-6 px-4 mt-10 md:grid-cols-2 lg:grid-cols-3 lg:px-16">
+      {cards.map((card) => {
+        const Icon = card.icon;
+        return (
+          <div
+            key={card.title}
+            data-aos={card.aos}
+            data-aos-duration="1000"
+            className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#BB0545]/30 hover:shadow-xl"
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[#BB0545]/10 transition-colors duration-300 group-hover:bg-[#BB0545]">
+              <Icon
+                size={22}
+                className="text-[#BB0545] transition-colors duration-300 group-hover:text-white"
+              />
+            </span>
 
-          <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-            <span className="flex items-center justify-center w-9 h-9 rounded-full bg-[#BB0545]">
-              <Mail size={16} className="text-white" />
-            </span>
-            <span className="flex items-center justify-center w-9 h-9 rounded-full bg-[#BB0545]">
-              <MapPin size={16} className="text-white" />
-            </span>
-            <span className="flex items-center justify-center w-9 h-9 rounded-full bg-[#BB0545]">
-              <Phone size={16} className="text-white" />
-            </span>
+            <h3 className="mt-6 text-lg font-semibold text-gray-900">
+              {card.title}
+            </h3>
+            <p className="mt-2 text-sm text-gray-500">{card.description}</p>
+
+            <span className="absolute bottom-0 left-0 h-1 w-0 bg-[#BB0545] transition-all duration-300 group-hover:w-full" />
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
-  )
-}
+  );
+};
 
-export default Card
+export default Card;

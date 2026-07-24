@@ -164,6 +164,57 @@ body {
   opacity: 0;
   animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+.hero {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background-color: #1c1a1b;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.322), rgba(0, 0, 0, 0.384)),
+    url("./assets/d13.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-attachment: scroll;
+  background-repeat: no-repeat;
+}
+
+@media (min-width: 1024px) {
+  .hero__bg {
+    background-attachment: fixed;
+  }
+}
+
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(28, 26, 27, 0.55) 0%,
+    rgba(28, 26, 27, 0.25) 30%,
+    rgba(28, 26, 27, 0.35) 65%,
+    rgba(28, 26, 27, 0.75) 100%
+  );
+}
+
+.hero__body {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem 6rem;
+}
 
 @keyframes pulseDot {
   0%,
