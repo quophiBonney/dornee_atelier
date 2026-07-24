@@ -218,7 +218,7 @@ export default function BookingModal({ open, onClose }) {
     >
       <div
         ref={panelRef}
-        className="relative w-full max-w-2xl overflow-hidden rounded-sm bg-white shadow-2xl"
+        className="relative w-full max-w-2xl overflow-hidden rounded-sm mt-36 md:mt-20 mb-10 bg-white shadow-2xl"
       >
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#AA1D23] via-[#A9873F] to-[#AA1D23]" />
 
@@ -226,7 +226,7 @@ export default function BookingModal({ open, onClose }) {
           <button
             onClick={onClose}
             aria-label="Close booking form"
-            className="absolute right-5 top-5 z-10 text-[#201C1D]/45 transition-colors hover:text-[#201C1D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#AA1D23] rounded-full"
+            className="absolute right-8 top-8 z-10 text-[#201C1D]/45 transition-colors hover:text-[#201C1D] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#AA1D23] rounded-full cursor-pointer"
           >
             <FiX size={22} />
           </button>
