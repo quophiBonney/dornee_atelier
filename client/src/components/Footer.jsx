@@ -29,16 +29,11 @@ const SOCIALS = [
 ];
 
 const NAV_LINKS = [
-  { label: "Collections", href: "#collections" },
-  { label: "About", href: "#about" },
-  { label: "Atelier", href: "#atelier" },
-  { label: "Contact", href: "#contact" },
+  { label: "Home", href: "home" },
+  { label: "About", href: "about-us" },
+  { label: "Services", href: "services" },
+  { label: "Contact", href: "contact" },
 ];
-
-/**
- * DorneeFooter
- * npm i gsap @gsap/react react-icons
- */
 export default function Footer() {
   const footerRef = useRef(null);
   const location = useLocation();
@@ -112,7 +107,7 @@ export default function Footer() {
           {/* Social */}
           <div data-col>
             <p className="font-['Space_Mono'] text-[10px] uppercase tracking-[0.25em] text-[#B76E79]">
-              Follow the studio
+              Follow Us
             </p>
             <ul className="mt-5 flex gap-3">
               {SOCIALS.map(({ label, href, Icon }) => (
