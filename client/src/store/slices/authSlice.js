@@ -24,9 +24,12 @@ export const loginUser = createAsyncThunk(
     try {
       const res = await api.post("/auth/login", credentials);
 
-      const { accessToken, data: user } = res.data;
+      const { accessToken, refreshToken, user } = res.data;
 
       localStorage.setItem("accessToken", accessToken);
+      if (refreshToken) {
+        localStorage.setItem("refreshToken", refreshToken);
+      }
       localStorage.setItem("user", JSON.stringify(user));
 
       return user;
@@ -82,7 +85,8 @@ const authSlice = createSlice({
   },
   reducers: {
     logout: (state) => {
-      localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
       localStorage.removeItem("user");
       state.user = null;
       state.error = null;
@@ -106,7 +110,8 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        // Don't overwrite the logged-in admin user with the signup response
+        // action.payload is { message, user } — just keep existing user
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {

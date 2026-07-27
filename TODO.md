@@ -17,4 +17,12 @@
 
 ## Completed ✓
 
-All changes implemented:
+### Bug Fix: Redirect after creating user from dashboard
+
+**Root Cause:** `registerUser.fulfilled` reducer was overwriting `state.user` with the signup response payload (`{ message, user }`) instead of preserving the logged-in admin user. This corrupted the auth state.
+
+**Fixes applied to `client/src/store/slices/authSlice.js`:**
+
+1. **`loginUser` thunk** — Now also saves `refreshToken` to localStorage so the axios interceptor can refresh expired tokens without crashing the session
+2. **`logout` reducer** — Fixed to remove `"accessToken"` and `"refreshToken"` instead of the non-existent `"token"` key
+3. **`registerUser.fulfilled` reducer** — Removed `state.user = action.payload` (which was setting user to `{ message, user }` signup response), now preserves the existing admin user in state
