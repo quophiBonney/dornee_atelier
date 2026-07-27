@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   User,
   Mail,
@@ -7,8 +8,13 @@ import {
   MessageSquare,
   ArrowRight,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import contact from "../assets/contact.svg";
+import {
+  submitContact,
+  clearContactSuccess,
+} from "../store/slices/contactSlice";
 
 const fieldBase =
   "peer w-full rounded-lg border border-[#E6E2DB] bg-white px-11 py-3.5 text-sm text-[#1C1A1B] outline-none transition-colors placeholder:text-transparent focus:border-[#B76E79]";
@@ -32,16 +38,23 @@ const Field = ({ icon: Icon, label, ...props }) => (
 );
 
 const Contactform = () => {
+  const dispatch = useDispatch();
+  const { loading, successMessage } = useSelector((state) => state.contact);
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
+    const formData = new FormData(e.target);
+    const payload = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
+    const result = await dispatch(submitContact(payload));
+    if (result.meta.requestStatus === "fulfilled") {
+      e.target.reset();
       setSubmitted(true);
-    }, 900);
+    }
   };
 
   return (
@@ -90,6 +103,7 @@ const Contactform = () => {
                   label="Your name"
                   type="text"
                   id="name"
+                  name="name"
                   required
                 />
                 <Field
@@ -97,6 +111,7 @@ const Contactform = () => {
                   label="Your email"
                   type="email"
                   id="email"
+                  name="email"
                   required
                 />
               </div>
@@ -108,6 +123,7 @@ const Contactform = () => {
                 />
                 <textarea
                   id="message"
+                  name="message"
                   rows={4}
                   required
                   placeholder="What would you like to enquire about?"
@@ -117,11 +133,20 @@ const Contactform = () => {
 
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={loading}
                 className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#BB0545] py-3.5 text-sm font-semibold text-[#F6F1EA] transition-colors hover:bg-[#B76E79] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting ? "Sending..." : "Send Send Message"}
-                {!submitting && <ArrowRight size={16} />}
+                {loading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    Send Message
+                    <ArrowRight size={16} />
+                  </>
+                )}
               </button>
 
               <p className="text-center text-xs text-[#1C1A1B]/45">

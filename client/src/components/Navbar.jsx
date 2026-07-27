@@ -29,18 +29,13 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`fixed h-28 left-0 -top-5 z-50 w-full transition-all duration-500 ${
-          isScrolled ? "bg-white shadow-lg py-4" : "bg-gray-300/2 py-3"
+        className={`fixed left-0 -top-5 z-50 w-full transition-all duration-500 ${
+          isScrolled ? "bg-gray-400/2 backdrop-blur shadow-lg" : "bg-gray-300/5"
         }`}
       >
-        <div className="flex w-full items-center justify-between px-3 lg:px-20">
+        <div className="flex w-full items-center justify-between px-3 lg:px-20 mt-2">
           {/* Logo */}
-          <Link
-            to="/"
-            className={`logo text-xl font-semibold tracking-wide transition-all duration-500 uppercase ${
-              isScrolled ? "text-black" : "text-white"
-            }`}
-          >
+          <Link to="/" className="">
             <img
               src={logo}
               alt="Dornee Atelier"
@@ -52,7 +47,7 @@ const Navbar = () => {
           <nav className="hidden items-center gap-10 lg:flex">
             <Link
               to="/"
-              className={`font-serif group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
+              className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
                 isScrolled ? "text-black" : "text-white"
               }`}
             >
@@ -65,20 +60,20 @@ const Navbar = () => {
             </Link>
             <Link
               to="/services"
-              className={`font-serif group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
+              className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
                 isScrolled ? "text-black" : "text-white"
               }`}
             >
               Services
               <span
-                className={`font-serif absolute -bottom-2 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full ${
+                className={`absolute -bottom-2 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full ${
                   isScrolled ? "bg-black" : "bg-white"
                 }`}
               />
             </Link>
             <Link
               to="/about-us"
-              className={`font-serif group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
+              className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
                 isScrolled ? "text-black" : "text-white"
               }`}
             >
@@ -91,7 +86,7 @@ const Navbar = () => {
             </Link>
             <Link
               to="/contact"
-              className={`font-serif group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
+              className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
                 isScrolled ? "text-black" : "text-white"
               }`}
             >

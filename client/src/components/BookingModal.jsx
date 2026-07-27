@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import {
@@ -8,6 +9,7 @@ import {
   FiLoader,
   FiLock,
 } from "react-icons/fi";
+import { createAppointment } from "../store/slices/appointmentSlice";
 
 const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
 const CURRENCY = "GHS";
@@ -38,6 +40,10 @@ export default function BookingModal({ open, onClose }) {
   const overlayRef = useRef(null);
   const panelRef = useRef(null);
   const checkRef = useRef(null);
+  const dispatch = useDispatch();
+  const { loading: appointmentLoading } = useSelector(
+    (state) => state.appointment,
+  );
 
   const [step, setStep] = useState("form"); // "form" | "pay" | "success"
   const [form, setForm] = useState(INITIAL_FORM);
@@ -193,9 +199,15 @@ export default function BookingModal({ open, onClose }) {
       callback: (response) => {
         setPaying(false);
         setReference(response.reference);
+        // Persist appointment to the database via Redux thunk
+        dispatch(
+          createAppointment({
+            ...form,
+            reference: response.reference,
+            amount: SERVICE_FEES[form.service],
+          }),
+        );
         setStep("success");
-        // TODO: POST { ...form, reference: response.reference } to your
-        // booking endpoint / CRM here to persist the confirmed slot.
       },
       onClose: () => {
         setPaying(false);

@@ -5,6 +5,8 @@ import cors from "cors";
 import helmet from "helmet";
 
 import authRoutes from "./routes/auth.routes.js";
+import appointmentRoutes from "./routes/appointment.routes.js";
+import contactRoutes from "./routes/contact.routes.js";
 import { connectDB } from "./config/db.connection.js";
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
@@ -46,4 +48,6 @@ app.get("/", (req, res) => {
   res.send("<h3>Welcome to Dornee API</h3>");
 });
 app.use("/api/v1/", authRoutes);
+app.use("/api/v1/appointments", appointmentRoutes);
+app.use("/api/v1/contacts", contactRoutes);
 export default app;
