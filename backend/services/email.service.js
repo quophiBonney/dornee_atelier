@@ -3,12 +3,12 @@ import nodemailer from "nodemailer";
 // Create reusable transporter
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.MAIL_HOST,
-    port: process.env.MAIL_PORT || 587,
-    secure: process.env.MAIL_SECURE === "true",
+    host: process.env.SMTP_HOST,
+    port: 587,
+    secure: false,
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
   });
 };
