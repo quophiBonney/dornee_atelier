@@ -32,13 +32,14 @@ import {
   Trash2,
   Pencil,
   AlertTriangle,
+  UserPlus,
 } from "lucide-react";
 import {
   fetchAppointments,
   updateAppointment,
   deleteAppointment,
 } from "../store/slices/appointmentSlice";
-import { fetchAllUsers } from "../store/slices/authSlice";
+import { fetchAllUsers, registerUser } from "../store/slices/authSlice";
 import { fetchContacts } from "../store/slices/contactSlice";
 const FIRST = [
   "Amara",
@@ -413,7 +414,15 @@ function ThemeToggle({ theme, onToggle }) {
   );
 }
 
-function TopBar({ page, onMenuClick, query, setQuery, theme, onToggleTheme }) {
+function TopBar({
+  page,
+  onMenuClick,
+  query,
+  setQuery,
+  theme,
+  onToggleTheme,
+  onCreateUser,
+}) {
   const meta = PAGE_META[page];
   return (
     <div
@@ -455,14 +464,11 @@ function TopBar({ page, onMenuClick, query, setQuery, theme, onToggleTheme }) {
             />
           </button>
           <button
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, var(--cyan), var(--violet))",
-              color: "#04060a",
-            }}
+            onClick={onCreateUser}
+            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95 bg-[#AA1D23] text-white"
           >
             <Plus size={15} />
-            <span className="hidden sm:inline">New record</span>
+            <span className="hidden sm:inline">New User</span>
           </button>
         </div>
       </div>
@@ -1623,6 +1629,194 @@ function EnquiriesPage({ query }) {
 }
 
 /* ======================================================================= */
+/*  CREATE USER MODAL                                                       */
+/* ======================================================================= */
+
+function CreateUserModal({ open, onClose }) {
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    role: "admin",
+  });
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
+  if (!open) return null;
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    setError(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      setError("Email and password are required");
+      return;
+    }
+    setCreating(true);
+    setError(null);
+    try {
+      await dispatch(registerUser(formData)).unwrap();
+      setSuccess(true);
+      setTimeout(() => {
+        setFormData({ email: "", password: "", role: "admin" });
+        setSuccess(false);
+        onClose();
+        dispatch(fetchAllUsers());
+      }, 1500);
+    } catch (err) {
+      setError(err || "Failed to create user");
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-md rounded-2xl p-6 glass-strong fade-up"
+        style={{ borderColor: "var(--panel-border)" }}
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ background: "rgba(0,229,255,0.15)" }}
+          >
+            <UserPlus size={20} style={{ color: "var(--cyan)" }} />
+          </div>
+          <div>
+            <h3
+              className="text-lg font-semibold"
+              style={{ color: "var(--text-1)" }}
+            >
+              Create New User
+            </h3>
+            <p className="text-sm" style={{ color: "var(--text-2)" }}>
+              Add a new admin dashboard user
+            </p>
+          </div>
+        </div>
+
+        {success ? (
+          <div
+            className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm"
+            style={{
+              background: "rgba(46,230,166,0.12)",
+              color: "var(--success)",
+              border: "1px solid rgba(46,230,166,0.28)",
+            }}
+          >
+            <CheckCircle2 size={18} />
+            User created successfully!
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div
+                className="rounded-lg px-4 py-3 text-sm"
+                style={{
+                  background: "rgba(255,92,122,0.12)",
+                  color: "var(--danger)",
+                  border: "1px solid rgba(255,92,122,0.28)",
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label
+                className="mb-1.5 block text-xs font-medium"
+                style={{ color: "var(--text-2)" }}
+              >
+                Email Address
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="user@example.com"
+                className="vtx-input w-full rounded-lg px-3 py-2.5 text-sm outline-none"
+                style={{ color: "var(--text-1)" }}
+              />
+            </div>
+
+            <div>
+              <label
+                className="mb-1.5 block text-xs font-medium"
+                style={{ color: "var(--text-2)" }}
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Min. 6 characters"
+                className="vtx-input w-full rounded-lg px-3 py-2.5 text-sm outline-none"
+                style={{ color: "var(--text-1)" }}
+              />
+            </div>
+
+            <div>
+              <label
+                className="mb-1.5 block text-xs font-medium"
+                style={{ color: "var(--text-2)" }}
+              >
+                Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="vtx-input w-full rounded-lg px-3 py-2.5 text-sm outline-none"
+                style={{ color: "var(--text-1)" }}
+              >
+                <option value="admin">Admin</option>
+                <option value="superadmin">Super Admin</option>
+                <option value="support">Support</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-lg px-4 py-2 text-sm font-medium"
+                style={{ color: "var(--text-2)" }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={creating}
+                className="rounded-lg px-4 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95 disabled:opacity-40"
+                style={{
+                  background:
+                    "linear-gradient(135deg, var(--cyan), var(--violet))",
+                  color: "#04060a",
+                }}
+              >
+                {creating ? "Creating..." : "Create User"}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================================= */
 /*  MAIN CONTENT SWITCH                                                     */
 /* ======================================================================= */
 
@@ -1648,7 +1842,8 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
+  const [createUserOpen, setCreateUserOpen] = useState(false);
   const key = useRef(0);
 
   useEffect(() => {
@@ -1696,10 +1891,16 @@ export default function Dashboard() {
             onToggleTheme={() =>
               setTheme((t) => (t === "dark" ? "light" : "dark"))
             }
+            onCreateUser={() => setCreateUserOpen(true)}
           />
           <div className="mt-6" key={page}>
             <MainContent page={page} query={query} theme={theme} />
           </div>
+
+          <CreateUserModal
+            open={createUserOpen}
+            onClose={() => setCreateUserOpen(false)}
+          />
         </div>
       </main>
     </div>

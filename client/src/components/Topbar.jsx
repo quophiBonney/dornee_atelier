@@ -50,16 +50,6 @@ export function TopBar({
               style={{ background: "var(--danger)" }}
             />
           </button>
-          <button
-            className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95"
-            style={{
-              background: "linear-gradient(135deg, var(--cyan), var(--violet))",
-              color: "#04060a",
-            }}
-          >
-            <Plus size={15} />
-            <span className="hidden sm:inline">New record</span>
-          </button>
         </div>
       </div>
 
