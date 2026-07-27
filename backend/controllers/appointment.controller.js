@@ -1,5 +1,8 @@
 import Appointment from "../models/appointment.model.js";
-import { sendAppointmentStatusEmail } from "../services/email.service.js";
+import {
+  sendAppointmentStatusEmail,
+  sendBookingConfirmationEmail,
+} from "../services/email.service.js";
 
 // @desc    Create a new appointment
 // @route   POST /api/v1/appointments
@@ -18,6 +21,11 @@ export const createAppointment = async (req, res) => {
       notes,
       reference,
       amount,
+    });
+
+    // Fire-and-forget: send booking confirmation email
+    sendBookingConfirmationEmail(appointment).catch((err) => {
+      console.error("Failed to send booking confirmation email:", err.message);
     });
 
     res.status(201).json({

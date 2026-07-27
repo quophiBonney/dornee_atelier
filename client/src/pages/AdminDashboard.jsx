@@ -31,6 +31,7 @@ import {
   Moon,
   Trash2,
   Pencil,
+  Eye,
   AlertTriangle,
   UserPlus,
 } from "lucide-react";
@@ -40,7 +41,7 @@ import {
   deleteAppointment,
 } from "../store/slices/appointmentSlice";
 import { fetchAllUsers, registerUser } from "../store/slices/authSlice";
-import { fetchContacts } from "../store/slices/contactSlice";
+import { fetchContacts, deleteContact } from "../store/slices/contactSlice";
 const FIRST = [
   "Amara",
   "Kwesi",
@@ -251,7 +252,7 @@ function Sidebar({ active, onNavigate, open, onClose, counts }) {
       {open && (
         <div
           onClick={onClose}
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-30 bg-white backdrop-blur-sm lg:hidden"
         />
       )}
       <aside
@@ -307,13 +308,13 @@ function Sidebar({ active, onNavigate, open, onClose, counts }) {
         <nav className="relative mt-2 flex-1 px-3">
           {activeIndex >= 0 && (
             <div
-              className="rail absolute left-3 w-[calc(100%-24px)] rounded-lg glow-cyan"
+              className="rail absolute left-3 w-[calc(100%-24px)] rounded-lg"
               style={{
                 height: 44,
                 top: activeIndex * 48,
-                background:
-                  "linear-gradient(90deg, rgba(0,229,255,0.14), rgba(124,92,252,0.10))",
-                border: "1px solid rgba(0,229,255,0.3)",
+                background: "#AA1D23",
+                color: "white",
+                border: "1px solid rgba(238,241,248,0))",
               }}
             />
           )}
@@ -326,31 +327,18 @@ function Sidebar({ active, onNavigate, open, onClose, counts }) {
                 <button
                   key={item.key}
                   onClick={() => onNavigate(item.key)}
-                  className="relative z-10 flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-200"
+                  className="relative z-10 flex h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors duration-200 uppercase"
                   style={{
-                    color: isActive ? "var(--text-1)" : "var(--text-2)",
+                    color: isActive ? "white" : "var(--text-2)",
                   }}
                 >
                   <Icon
                     size={17}
                     style={{
-                      color: isActive ? "var(--cyan)" : "var(--text-3)",
+                      color: isActive ? "white" : "var(--text-3)",
                     }}
                   />
                   <span className="flex-1 text-left">{item.label}</span>
-                  {typeof count === "number" && (
-                    <span
-                      className="font-mono rounded-md px-1.5 py-0.5 text-[10px]"
-                      style={{
-                        background: isActive
-                          ? "rgba(0,229,255,0.14)"
-                          : "var(--chip-bg)",
-                        color: isActive ? "var(--cyan)" : "var(--text-3)",
-                      }}
-                    >
-                      {count}
-                    </span>
-                  )}
                 </button>
               );
             })}
@@ -1548,19 +1536,249 @@ function AppointmentsPage({ query }) {
   );
 }
 
+/* ======================================================================= */
+/*  VIEW CONTACT MODAL                                                      */
+/* ======================================================================= */
+
+function ViewContactModal({ open, contact, onClose }) {
+  if (!open || !contact) return null;
+
+  const ChannelIcon = CHANNEL_ICON[contact.channel] || Mail;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-lg rounded-2xl p-6 glass-strong fade-up"
+        style={{ borderColor: "var(--panel-border)" }}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h3
+            className="text-lg font-semibold"
+            style={{ color: "var(--text-1)" }}
+          >
+            Contact Enquiry Details
+          </h3>
+          <button
+            onClick={onClose}
+            className="rounded-md p-1"
+            style={{ color: "var(--text-3)" }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p
+                className="text-xs font-medium uppercase tracking-wider mb-1"
+                style={{ color: "var(--text-3)" }}
+              >
+                Name
+              </p>
+              <p
+                className="text-sm font-medium"
+                style={{ color: "var(--text-1)" }}
+              >
+                {contact.name}
+              </p>
+            </div>
+            <div>
+              <p
+                className="text-xs font-medium uppercase tracking-wider mb-1"
+                style={{ color: "var(--text-3)" }}
+              >
+                Email
+              </p>
+              <p className="text-sm" style={{ color: "var(--text-1)" }}>
+                {contact.email}
+              </p>
+            </div>
+            <div>
+              <p
+                className="text-xs font-medium uppercase tracking-wider mb-1"
+                style={{ color: "var(--text-3)" }}
+              >
+                Channel
+              </p>
+              <p
+                className="text-sm flex items-center gap-1.5"
+                style={{ color: "var(--text-1)" }}
+              >
+                <ChannelIcon size={13} style={{ color: "var(--text-3)" }} />
+                {contact.channel}
+              </p>
+            </div>
+            <div>
+              <p
+                className="text-xs font-medium uppercase tracking-wider mb-1"
+                style={{ color: "var(--text-3)" }}
+              >
+                Status
+              </p>
+              <StatusBadge status={contact.status} />
+            </div>
+            <div className="col-span-2">
+              <p
+                className="text-xs font-medium uppercase tracking-wider mb-1"
+                style={{ color: "var(--text-3)" }}
+              >
+                Received
+              </p>
+              <p className="text-sm" style={{ color: "var(--text-1)" }}>
+                {contact.received ? fmtDate(contact.received) : "—"}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="rounded-xl p-4"
+            style={{
+              background: "var(--chip-bg)",
+              border: "1px solid var(--panel-border)",
+            }}
+          >
+            <p
+              className="text-xs font-medium uppercase tracking-wider mb-2"
+              style={{ color: "var(--text-3)" }}
+            >
+              Message
+            </p>
+            <p
+              className="text-sm leading-relaxed whitespace-pre-wrap"
+              style={{ color: "var(--text-1)" }}
+            >
+              {contact.message}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex items-center justify-end">
+          <button
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-medium"
+            style={{ color: "var(--text-2)" }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================================= */
+/*  DELETE CONFIRMATION MODAL — Enquiry                                     */
+/* ======================================================================= */
+
+function DeleteEnquiryModal({ open, contact, onClose, onDelete }) {
+  const [deleting, setDeleting] = useState(false);
+
+  if (!open) return null;
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await onDelete(contact.id);
+    setDeleting(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-sm rounded-2xl p-6 glass-strong fade-up"
+        style={{ borderColor: "var(--panel-border)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ background: "rgba(255,92,122,0.15)" }}
+          >
+            <AlertTriangle size={20} style={{ color: "var(--danger)" }} />
+          </div>
+          <div>
+            <h3
+              className="text-lg font-semibold"
+              style={{ color: "var(--text-1)" }}
+            >
+              Delete Enquiry
+            </h3>
+            <p className="text-sm" style={{ color: "var(--text-2)" }}>
+              {contact?.name} — {contact?.email}
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-4 text-sm" style={{ color: "var(--text-2)" }}>
+          Are you sure you want to delete this enquiry? This action cannot be
+          undone.
+        </p>
+
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-medium"
+            style={{ color: "var(--text-2)" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="rounded-lg px-4 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95 disabled:opacity-40"
+            style={{
+              background: "rgba(255,92,122,0.15)",
+              color: "var(--danger)",
+              border: "1px solid rgba(255,92,122,0.3)",
+            }}
+          >
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function EnquiriesPage({ query }) {
   const dispatch = useDispatch();
   const { contacts, loading, error } = useSelector((state) => state.contact);
+
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
 
   useEffect(() => {
     dispatch(fetchContacts());
   }, [dispatch]);
 
+  const openViewModal = (contact) => {
+    setSelectedContact(contact);
+    setViewModalOpen(true);
+  };
+
+  const openDeleteModal = (contact) => {
+    setSelectedContact(contact);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    await dispatch(deleteContact(id));
+    dispatch(fetchContacts());
+  };
+
   const tableData = (contacts || []).map((c) => ({
     id: c._id,
     name: c.name || "—",
     email: c.email || "—",
-    subject: c.subject || "—",
     message: c.message || "—",
     channel: c.channel || "Web Form",
     status: c.status || "open",
@@ -1570,7 +1788,6 @@ function EnquiriesPage({ query }) {
   const columns = [
     { key: "name", label: "Name" },
     { key: "email", label: "Email" },
-    { key: "subject", label: "Subject" },
     {
       key: "channel",
       label: "Channel",
@@ -1593,6 +1810,38 @@ function EnquiriesPage({ query }) {
       key: "received",
       label: "Received",
       render: (r) => (r.received ? fmtDate(r.received) : "—"),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      sortable: false,
+      render: (r) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => openViewModal(r)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
+            style={{
+              background: "rgba(0,229,255,0.12)",
+              color: "var(--cyan)",
+              border: "1px solid rgba(0,229,255,0.25)",
+            }}
+          >
+            <Eye size={12} />
+            <span>View</span>
+          </button>
+          <button
+            onClick={() => openDeleteModal(r)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
+            style={{
+              background: "rgba(255,92,122,0.12)",
+              color: "var(--danger)",
+              border: "1px solid rgba(255,92,122,0.25)",
+            }}
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
+      ),
     },
   ];
 
@@ -1619,12 +1868,27 @@ function EnquiriesPage({ query }) {
   }
 
   return (
-    <DataTable
-      columns={columns}
-      data={tableData}
-      statusOptions={["open", "in progress", "resolved"]}
-      externalQuery={query}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={tableData}
+        statusOptions={["open", "in progress", "resolved"]}
+        externalQuery={query}
+      />
+
+      <ViewContactModal
+        open={viewModalOpen}
+        contact={selectedContact}
+        onClose={() => setViewModalOpen(false)}
+      />
+
+      <DeleteEnquiryModal
+        open={deleteModalOpen}
+        contact={selectedContact}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDelete}
+      />
+    </>
   );
 }
 
