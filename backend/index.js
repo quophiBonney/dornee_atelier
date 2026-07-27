@@ -15,8 +15,8 @@ connectDB();
 
 const app = express();
 const allowedOrigins = [
-  "http://localhost:5173",
-  // "https://dornee-atelier.vercel.app",
+  // "http://localhost:5173",
+  "https://dornee-atelier.vercel.app",
 ];
 
 app.use(
