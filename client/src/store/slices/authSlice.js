@@ -54,10 +54,28 @@ export const fetchUser = createAsyncThunk("auth/me", async (_, thunkAPI) => {
   }
 });
 
+// @desc    Fetch all users (Admin)
+export const fetchAllUsers = createAsyncThunk(
+  "auth/fetchAllUsers",
+  async (_, thunkAPI) => {
+    try {
+      const res = await api.get("/auth/users");
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(
+        err?.response?.data?.message ||
+          err?.response?.data?.error ||
+          "Failed to fetch users",
+      );
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState: {
     user: null,
+    users: [],
     loading: false,
     initializing: true,
     error: null,
@@ -118,6 +136,19 @@ const authSlice = createSlice({
       .addCase(fetchUser.rejected, (state) => {
         state.user = null;
         state.initializing = false;
+      })
+      // Fetch All Users
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = action.payload;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

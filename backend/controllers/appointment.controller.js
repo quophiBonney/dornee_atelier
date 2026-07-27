@@ -1,4 +1,5 @@
 import Appointment from "../models/appointment.model.js";
+import { sendAppointmentStatusEmail } from "../services/email.service.js";
 
 // @desc    Create a new appointment
 // @route   POST /api/v1/appointments
@@ -95,16 +96,29 @@ export const getAppointmentById = async (req, res) => {
 // @access  Private/Admin
 export const updateAppointment = async (req, res) => {
   try {
+    // Fetch the existing appointment to compare status
+    const existingAppointment = await Appointment.findById(req.params.id);
+
+    if (!existingAppointment) {
+      return res.status(404).json({
+        success: false,
+        error: "Appointment not found",
+      });
+    }
+
+    const oldStatus = existingAppointment.status;
+
     const appointment = await Appointment.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true, runValidators: true },
     );
 
-    if (!appointment) {
-      return res.status(404).json({
-        success: false,
-        error: "Appointment not found",
+    // If status changed, send email notification
+    if (req.body.status && req.body.status !== oldStatus) {
+      // Fire and forget - don't block the response
+      sendAppointmentStatusEmail(appointment, oldStatus).catch((err) => {
+        console.error("Failed to send status email:", err.message);
       });
     }
 
@@ -121,9 +135,6 @@ export const updateAppointment = async (req, res) => {
   }
 };
 
-// @desc    Delete appointment
-// @route   DELETE /api/v1/appointments/:id
-// @access  Private/Admin
 export const deleteAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findByIdAndDelete(req.params.id);

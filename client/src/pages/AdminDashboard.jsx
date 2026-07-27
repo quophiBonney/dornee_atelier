@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
   Search,
@@ -28,17 +29,17 @@ import {
   Plus,
   Sun,
   Moon,
+  Trash2,
+  Pencil,
+  AlertTriangle,
 } from "lucide-react";
-
-/* ======================================================================= */
-/*  DESIGN TOKENS — injected once from the root component                  */
-/*  Two palettes share the same variable names; [data-theme] picks one.    */
-/* ======================================================================= */
-
-/* ======================================================================= */
-/*  MOCK DATA GENERATION                                                    */
-/* ======================================================================= */
-
+import {
+  fetchAppointments,
+  updateAppointment,
+  deleteAppointment,
+} from "../store/slices/appointmentSlice";
+import { fetchAllUsers } from "../store/slices/authSlice";
+import { fetchContacts } from "../store/slices/contactSlice";
 const FIRST = [
   "Amara",
   "Kwesi",
@@ -234,10 +235,6 @@ function StatusBadge({ status }) {
 
 const CHANNEL_ICON = { Email: Mail, Phone: Phone, "Live Chat": MessageCircle };
 
-/* ======================================================================= */
-/*  SIDEBAR                                                                  */
-/* ======================================================================= */
-
 const NAV_ITEMS = [
   { key: "overview", label: "Overview", icon: LayoutGrid },
   { key: "users", label: "Users", icon: UsersIcon },
@@ -265,7 +262,7 @@ function Sidebar({ active, onNavigate, open, onClose, counts }) {
         {/* Logo */}
         <div className="flex items-center justify-between px-5 pt-6 pb-5">
           <div className="flex items-center gap-2.5">
-            <div className="relative flex h-9 w-9 items-center justify-center">
+            {/* <div className="relative flex h-9 w-9 items-center justify-center">
               <Hexagon
                 size={34}
                 className="spin-slow"
@@ -280,19 +277,19 @@ function Sidebar({ active, onNavigate, open, onClose, counts }) {
                 fill="var(--cyan)"
                 style={{ color: "var(--cyan)" }}
               />
-            </div>
+            </div> */}
             <div>
               <p
                 className="font-display text-sm font-semibold tracking-wide"
                 style={{ color: "var(--text-1)" }}
               >
-                VERTEX
+                DORNEE ATELIER
               </p>
               <p
                 className="font-mono text-[10px] tracking-widest"
                 style={{ color: "var(--text-3)" }}
               >
-                OPS CONSOLE
+                ADMIN DASHBOARD
               </p>
             </div>
           </div>
@@ -1123,6 +1120,27 @@ function OverviewPage({ theme }) {
 /* ======================================================================= */
 
 function UsersPage({ query }) {
+  const dispatch = useDispatch();
+  const { users, loading, error } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(fetchAllUsers());
+  }, [dispatch]);
+
+  const tableData = (users || []).map((u) => ({
+    id: u._id,
+    name: u.email ? u.email.split("@")[0] : "—",
+    email: u.email || "—",
+    role: u.role || "—",
+    status: u.isActive !== false ? "active" : "suspended",
+    joined: u.createdAt ? new Date(u.createdAt) : null,
+    lastActive: u.lastLoginAt
+      ? new Date(u.lastLoginAt)
+      : u.updatedAt
+        ? new Date(u.updatedAt)
+        : null,
+  }));
+
   const columns = [
     {
       key: "name",
@@ -1133,10 +1151,7 @@ function UsersPage({ query }) {
             className="font-mono flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold"
             style={{ background: "rgba(0,229,255,0.14)", color: "var(--cyan)" }}
           >
-            {r.name
-              .split(" ")
-              .map((p) => p[0])
-              .join("")}
+            {r.email.charAt(0).toUpperCase()}
           </div>
           <span style={{ color: "var(--text-1)" }}>{r.name}</span>
         </div>
@@ -1149,55 +1164,412 @@ function UsersPage({ query }) {
       label: "Status",
       render: (r) => <StatusBadge status={r.status} />,
     },
-    { key: "joined", label: "Joined", render: (r) => fmtDate(r.joined) },
+    {
+      key: "joined",
+      label: "Joined",
+      render: (r) => (r.joined ? fmtDate(r.joined) : "—"),
+    },
     {
       key: "lastActive",
       label: "Last active",
-      render: (r) => fmtDate(r.lastActive),
+      render: (r) => (r.lastActive ? fmtDate(r.lastActive) : "—"),
     },
   ];
+
+  if (loading && tableData.length === 0) {
+    return (
+      <div
+        className="flex items-center justify-center py-16 text-sm"
+        style={{ color: "var(--text-3)" }}
+      >
+        Loading users...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-16 text-sm"
+        style={{ color: "var(--danger)" }}
+      >
+        <p>Failed to load users: {error}</p>
+      </div>
+    );
+  }
+
   return (
     <DataTable
       columns={columns}
-      data={USERS}
-      statusOptions={["active", "invited", "suspended"]}
+      data={tableData}
+      statusOptions={["active", "suspended"]}
       externalQuery={query}
     />
   );
 }
 
+function StatusUpdateModal({ open, appointment, onClose, onUpdate }) {
+  const [selectedStatus, setSelectedStatus] = useState(
+    appointment?.status || "pending",
+  );
+  const [updating, setUpdating] = useState(false);
+
+  useEffect(() => {
+    if (appointment) {
+      setSelectedStatus(appointment.status);
+    }
+  }, [appointment]);
+
+  if (!open) return null;
+
+  const statusOptions = ["pending", "confirmed", "completed", "cancelled"];
+
+  const handleUpdate = async () => {
+    if (selectedStatus === appointment.status) {
+      onClose();
+      return;
+    }
+    setUpdating(true);
+    await onUpdate(appointment.id, { status: selectedStatus });
+    setUpdating(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-md rounded-2xl p-6 glass-strong fade-up"
+        style={{ borderColor: "var(--panel-border)" }}
+      >
+        <h3
+          className="text-lg font-semibold"
+          style={{ color: "var(--text-1)" }}
+        >
+          Update Appointment Status
+        </h3>
+        <p className="mt-1 text-sm" style={{ color: "var(--text-2)" }}>
+          {appointment?.client} — {appointment?.service}
+        </p>
+
+        <div className="mt-6 space-y-3">
+          {statusOptions.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSelectedStatus(s)}
+              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all"
+              style={{
+                background:
+                  selectedStatus === s
+                    ? "rgba(0,229,255,0.14)"
+                    : "var(--chip-bg)",
+                border:
+                  selectedStatus === s
+                    ? "1px solid rgba(0,229,255,0.3)"
+                    : "1px solid transparent",
+                color: "var(--text-1)",
+              }}
+            >
+              <StatusBadge status={s} />
+              <span className="capitalize">{s}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-medium"
+            style={{ color: "var(--text-2)" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpdate}
+            disabled={updating || selectedStatus === appointment?.status}
+            className="rounded-lg px-4 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95 disabled:opacity-40"
+            style={{
+              background: "linear-gradient(135deg, var(--cyan), var(--violet))",
+              color: "#04060a",
+            }}
+          >
+            {updating ? "Updating..." : "Update Status"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ======================================================================= */
+/*  DELETE CONFIRMATION MODAL                                               */
+/* ======================================================================= */
+
+function DeleteConfirmModal({ open, appointment, onClose, onDelete }) {
+  const [deleting, setDeleting] = useState(false);
+
+  if (!open) return null;
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    await onDelete(appointment.id);
+    setDeleting(false);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-sm rounded-2xl p-6 glass-strong fade-up"
+        style={{ borderColor: "var(--panel-border)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center rounded-full"
+            style={{ background: "rgba(255,92,122,0.15)" }}
+          >
+            <AlertTriangle size={20} style={{ color: "var(--danger)" }} />
+          </div>
+          <div>
+            <h3
+              className="text-lg font-semibold"
+              style={{ color: "var(--text-1)" }}
+            >
+              Delete Appointment
+            </h3>
+            <p className="text-sm" style={{ color: "var(--text-2)" }}>
+              {appointment?.client} — {appointment?.service}
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-4 text-sm" style={{ color: "var(--text-2)" }}>
+          Are you sure you want to delete this appointment? This action cannot
+          be undone.
+        </p>
+
+        <div className="mt-6 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-medium"
+            style={{ color: "var(--text-2)" }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="rounded-lg px-4 py-2 text-sm font-semibold transition-transform duration-150 active:scale-95 disabled:opacity-40"
+            style={{
+              background: "rgba(255,92,122,0.15)",
+              color: "var(--danger)",
+              border: "1px solid rgba(255,92,122,0.3)",
+            }}
+          >
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AppointmentsPage({ query }) {
+  const dispatch = useDispatch();
+  const { appointments, loading, error } = useSelector(
+    (state) => state.appointment,
+  );
+
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchAppointments());
+  }, [dispatch]);
+
+  const handleStatusUpdate = async (id, data) => {
+    await dispatch(updateAppointment({ id, ...data }));
+  };
+
+  const handleDelete = async (id) => {
+    await dispatch(deleteAppointment(id));
+  };
+
+  const openStatusModal = (appt) => {
+    setSelectedAppointment(appt);
+    setStatusModalOpen(true);
+  };
+
+  const openDeleteModal = (appt) => {
+    setSelectedAppointment(appt);
+    setDeleteModalOpen(true);
+  };
+
+  // Transform API data to match DataTable column keys
+  const tableData = appointments.map((a) => ({
+    id: a._id,
+    client: a.name,
+    email: a.email,
+    phone: a.phone || "—",
+    service: a.service,
+    date: a.date ? new Date(a.date) : null,
+    time: a.createdAt
+      ? new Date(a.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "—",
+    status: a.status,
+    reference: a.reference || "—",
+    amount: a.amount ? `₵${a.amount}` : "—",
+    notes: a.notes || "—",
+    _original: a,
+  }));
+
   const columns = [
     { key: "client", label: "Client" },
+    { key: "email", label: "Email" },
+    { key: "phone", label: "Phone" },
     { key: "service", label: "Service" },
-    { key: "staff", label: "Staff" },
-    { key: "date", label: "Date", render: (r) => fmtDate(r.date) },
+    {
+      key: "date",
+      label: "Date",
+      render: (r) => (r.date ? fmtDate(r.date) : "—"),
+    },
     { key: "time", label: "Time" },
     {
       key: "status",
       label: "Status",
       render: (r) => <StatusBadge status={r.status} />,
     },
+    {
+      key: "actions",
+      label: "Actions",
+      sortable: false,
+      render: (r) => (
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => openStatusModal(r)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
+            style={{
+              background: "rgba(0,229,255,0.12)",
+              color: "var(--cyan)",
+              border: "1px solid rgba(0,229,255,0.25)",
+            }}
+          >
+            <Pencil size={12} />
+          </button>
+          <button
+            onClick={() => openDeleteModal(r)}
+            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all hover:opacity-80"
+            style={{
+              background: "rgba(255,92,122,0.12)",
+              color: "var(--danger)",
+              border: "1px solid rgba(255,92,122,0.25)",
+            }}
+          >
+            <Trash2 size={12} />
+          </button>
+        </div>
+      ),
+    },
   ];
+
+  if (loading && tableData.length === 0) {
+    return (
+      <div
+        className="flex items-center justify-center py-16 text-sm"
+        style={{ color: "var(--text-3)" }}
+      >
+        Loading appointments...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-16 text-sm"
+        style={{ color: "var(--danger)" }}
+      >
+        <p>Failed to load appointments: {error}</p>
+        <button
+          onClick={() => dispatch(fetchAppointments())}
+          className="mt-4 rounded-lg px-4 py-2 text-xs font-semibold"
+          style={{
+            background: "rgba(0,229,255,0.14)",
+            color: "var(--cyan)",
+            border: "1px solid rgba(0,229,255,0.3)",
+          }}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <DataTable
-      columns={columns}
-      data={APPOINTMENTS}
-      statusOptions={["confirmed", "pending", "completed", "cancelled"]}
-      externalQuery={query}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={tableData}
+        statusOptions={["confirmed", "pending", "completed", "cancelled"]}
+        externalQuery={query}
+      />
+
+      <StatusUpdateModal
+        open={statusModalOpen}
+        appointment={selectedAppointment}
+        onClose={() => setStatusModalOpen(false)}
+        onUpdate={handleStatusUpdate}
+      />
+
+      <DeleteConfirmModal
+        open={deleteModalOpen}
+        appointment={selectedAppointment}
+        onClose={() => setDeleteModalOpen(false)}
+        onDelete={handleDelete}
+      />
+    </>
   );
 }
 
 function EnquiriesPage({ query }) {
+  const dispatch = useDispatch();
+  const { contacts, loading, error } = useSelector((state) => state.contact);
+
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
+  const tableData = (contacts || []).map((c) => ({
+    id: c._id,
+    name: c.name || "—",
+    email: c.email || "—",
+    subject: c.subject || "—",
+    message: c.message || "—",
+    channel: c.channel || "Web Form",
+    status: c.status || "open",
+    received: c.createdAt ? new Date(c.createdAt) : null,
+  }));
+
   const columns = [
     { key: "name", label: "Name" },
+    { key: "email", label: "Email" },
     { key: "subject", label: "Subject" },
     {
       key: "channel",
       label: "Channel",
       render: (r) => {
-        const Icon = CHANNEL_ICON[r.channel];
+        const Icon = CHANNEL_ICON[r.channel] || Mail;
         return (
           <span className="flex items-center gap-1.5">
             <Icon size={12} style={{ color: "var(--text-3)" }} />
@@ -1211,12 +1583,39 @@ function EnquiriesPage({ query }) {
       label: "Status",
       render: (r) => <StatusBadge status={r.status} />,
     },
-    { key: "received", label: "Received", render: (r) => fmtDate(r.received) },
+    {
+      key: "received",
+      label: "Received",
+      render: (r) => (r.received ? fmtDate(r.received) : "—"),
+    },
   ];
+
+  if (loading && tableData.length === 0) {
+    return (
+      <div
+        className="flex items-center justify-center py-16 text-sm"
+        style={{ color: "var(--text-3)" }}
+      >
+        Loading enquiries...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center py-16 text-sm"
+        style={{ color: "var(--danger)" }}
+      >
+        <p>Failed to load enquiries: {error}</p>
+      </div>
+    );
+  }
+
   return (
     <DataTable
       columns={columns}
-      data={ENQUIRIES}
+      data={tableData}
       statusOptions={["open", "in progress", "resolved"]}
       externalQuery={query}
     />
