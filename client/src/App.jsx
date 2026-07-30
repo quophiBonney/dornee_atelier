@@ -11,6 +11,7 @@ import About from "./pages/about";
 import Dashboard from "./pages/AdminDashboard";
 import Registration from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CategoryDetail from "./data/CategoryDetail";
 import Login from "./pages/Login";
 import Test from "./pages/Test";
 import Services from "./pages/services";
@@ -37,6 +38,7 @@ const App = () => {
         <Route path="/auth/register" element={<Registration />} />
         <Route path="/auth/login" element={<Login />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/products/:slug" element={<CategoryDetail />} />
       </Routes>
       <Footer />
     </>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import {
   Search,
@@ -40,7 +41,11 @@ import {
   updateAppointment,
   deleteAppointment,
 } from "../store/slices/appointmentSlice";
-import { fetchAllUsers, registerUser } from "../store/slices/authSlice";
+import {
+  fetchAllUsers,
+  fetchUser,
+  registerUser,
+} from "../store/slices/authSlice";
 import { fetchContacts, deleteContact } from "../store/slices/contactSlice";
 const FIRST = [
   "Amara",
@@ -2102,6 +2107,8 @@ function MainContent({ page, query, theme }) {
 /* ======================================================================= */
 
 export default function Dashboard() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [page, setPage] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -2109,6 +2116,21 @@ export default function Dashboard() {
   const [theme, setTheme] = useState("light");
   const [createUserOpen, setCreateUserOpen] = useState(false);
   const key = useRef(0);
+
+  // Verify auth session on mount
+  useEffect(() => {
+    const verifySession = async () => {
+      try {
+        await dispatch(fetchUser()).unwrap();
+      } catch {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        navigate("/auth/login");
+      }
+    };
+    verifySession();
+  }, [dispatch, navigate]);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 50);

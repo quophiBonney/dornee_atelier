@@ -41,8 +41,10 @@ api.interceptors.response.use(
 
         return api(originalRequest);
       } catch (err) {
-        localStorage.clear();
-        window.location.href = "/";
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("user");
+        window.location.href = "/auth/login";
       }
     }
 

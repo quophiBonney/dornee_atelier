@@ -30,7 +30,9 @@ const Navbar = () => {
     <>
       <header
         className={`fixed left-0 -top-5 z-50 w-full transition-all duration-500 ${
-          isScrolled ? "bg-gray-400/2 backdrop-blur shadow-lg" : "bg-gray-300/5"
+          isScrolled
+            ? "bg-amber-600/50 backdrop-blur shadow-lg"
+            : "bg-gray-300/5"
         }`}
       >
         <div className="flex w-full items-center justify-between px-3 lg:px-20 mt-2">
@@ -48,7 +50,7 @@ const Navbar = () => {
             <Link
               to="/"
               className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
-                isScrolled ? "text-black" : "text-white"
+                isScrolled ? "text-white" : "text-white"
               }`}
             >
               Home
@@ -61,7 +63,7 @@ const Navbar = () => {
             <Link
               to="/services"
               className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
-                isScrolled ? "text-black" : "text-white"
+                isScrolled ? "text-white" : "text-white"
               }`}
             >
               Services
@@ -74,7 +76,7 @@ const Navbar = () => {
             <Link
               to="/about-us"
               className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
-                isScrolled ? "text-black" : "text-white"
+                isScrolled ? "text-white" : "text-white"
               }`}
             >
               About Us
@@ -87,7 +89,7 @@ const Navbar = () => {
             <Link
               to="/contact"
               className={`group relative text-sm font-medium uppercase tracking-wider transition-all duration-300 ${
-                isScrolled ? "text-black" : "text-white"
+                isScrolled ? "text-white" : "text-white"
               }`}
             >
               Contact

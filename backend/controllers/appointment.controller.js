@@ -9,8 +9,17 @@ import {
 // @access  Public
 export const createAppointment = async (req, res) => {
   try {
-    const { name, email, phone, service, date, notes, reference, amount } =
-      req.body;
+    const {
+      name,
+      email,
+      phone,
+      service,
+      date,
+      notes,
+      reference,
+      appointmentMode,
+      amount,
+    } = req.body;
 
     const appointment = await Appointment.create({
       name,
@@ -20,6 +29,7 @@ export const createAppointment = async (req, res) => {
       date,
       notes,
       reference,
+      appointmentMode,
       amount,
     });
 

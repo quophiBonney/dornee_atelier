@@ -19,19 +19,18 @@ export default function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("loginUser:", loginUser);
-      const action = loginUser({ email, password, rememberMe });
+      const result = await dispatch(
+        loginUser({ email, password, rememberMe }),
+      ).unwrap();
 
-      console.log("Action:", action);
-
-      const result = await dispatch(action);
-
-      console.log("Result:", result);
-      toast.success("Welcome successful");
-      navigate("/auth/admin/dashboard");
+      if (result) {
+        toast.success("Welcome successful");
+        navigate("/auth/admin/dashboard");
+      }
     } catch (err) {
-      toast.error(err);
-      console.log(err?.message || err || "Login failed");
+      const errorMsg =
+        typeof err === "string" ? err : err?.message || "Login failed";
+      toast.error(errorMsg);
     }
   };
   return (

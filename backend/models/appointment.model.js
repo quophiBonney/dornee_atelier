@@ -13,6 +13,11 @@ const appointmentSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    appointmentMode: {
+      type: String,
+      enum: ["walk-in", "virtual"],
+      default: "walk-in",
+    },
     phone: {
       type: String,
       trim: true,

@@ -17,12 +17,12 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://dornee-atelier.vercel.app",
+  "http://dorneeatelier.com",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.indexOf(origin) === -1) {
