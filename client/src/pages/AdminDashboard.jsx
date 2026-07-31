@@ -2111,6 +2111,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [page, setPage] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userFromStorage, setUserFromStorage] = useState("");
   const [query, setQuery] = useState("");
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState("light");
