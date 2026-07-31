@@ -4,9 +4,6 @@ import {
   sendBookingConfirmationEmail,
 } from "../services/email.service.js";
 
-// @desc    Create a new appointment
-// @route   POST /api/v1/appointments
-// @access  Public
 export const createAppointment = async (req, res) => {
   try {
     const {

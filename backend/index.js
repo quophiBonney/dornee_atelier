@@ -17,7 +17,7 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
   "https://dornee-atelier.vercel.app",
-  "http://dorneeatelier.com",
+  "https://dorneeatelier.com",
 ];
 
 app.use(
