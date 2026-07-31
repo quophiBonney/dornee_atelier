@@ -12,10 +12,12 @@ import "swiper/css/parallax";
 import { Toaster } from "react-hot-toast";
 import { Provider, useDispatch } from "react-redux";
 import { store } from "./store";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
+        <ScrollToTop />
         <App />
         <Toaster position="top-right" reverseOrder={false} />
       </BrowserRouter>
