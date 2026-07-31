@@ -40,8 +40,10 @@ export default function RegisterForm() {
             className="w-full h-36 object-contain"
           />
           <div className="flex flex-col justify-center items-center">
-            <h1 className="text-5xl font-bold leading-tight">Welcome Back.</h1>
-            <p className="mt-6 text-lg text-indigo-100">
+            <h1 className="text-5xl font-bold leading-tight">
+              Create Account.
+            </h1>
+            <p className="mt-6 text-lg text-black">
               Create your account to access your dashboard, manage your
               projects, and collaborate with your team from anywhere.
             </p>
@@ -140,7 +142,7 @@ export default function RegisterForm() {
         <div className="relative z-10 text-center">
           <div className="text-4xl">👋</div>
           <h1 className="text-5xl font-bold leading-tight uppercase">
-            Welcome Back.
+            Complete Your Registration
           </h1>
         </div>
       </div>
