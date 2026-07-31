@@ -2119,17 +2119,15 @@ export default function Dashboard() {
 
   // Verify auth session on mount
   useEffect(() => {
-    const verifySession = async () => {
-      try {
-        await dispatch(fetchUser()).unwrap();
-      } catch {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
-        navigate("/auth/login");
-      }
-    };
-    verifySession();
+    const storedUser = localStorage.getItem("user");
+    const accessToken = localStorage.getItem("accessToken");
+
+    if (!storedUser || !accessToken) {
+      navigate("/auth/login");
+      return;
+    }
+
+    dispatch(setUserFromStorage(JSON.parse(storedUser)));
   }, [dispatch, navigate]);
 
   useEffect(() => {
