@@ -1,5 +1,5 @@
 import { useParams, Navigate } from "react-router-dom";
-import { categories } from "../data/categories";
+import { categories } from "./Categories";
 import Hero from "../components/CategoryHero";
 import CategoryGallery from "../components/CategoryGallery";
 
