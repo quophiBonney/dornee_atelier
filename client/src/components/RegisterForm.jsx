@@ -44,8 +44,8 @@ export default function RegisterForm() {
               Create Account.
             </h1>
             <p className="mt-6 text-lg text-black">
-              Create your account to access your dashboard, manage your
-              projects, and collaborate with your team from anywhere.
+              Create your account to access your dashboard and manage all
+              appointments.
             </p>
           </div>
           <form className="mt-5 space-y-6" onSubmit={handleSubmit}>
