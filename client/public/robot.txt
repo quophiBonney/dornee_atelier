@@ -1,0 +1,12 @@
+# robots.txt for Dornee Atelier
+
+User-agent: *
+Allow: /
+
+# Block admin pages (if they exist)
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login/
+
+# Sitemap location
+Sitemap: https://www.dorneeatelier.com/sitemap.xml
