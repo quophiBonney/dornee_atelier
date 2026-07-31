@@ -24,7 +24,7 @@ export default function RegisterForm() {
       ).unwrap();
 
       if (result) {
-        toast.success("Welcome successful");
+        toast.success("Login successful");
         navigate("/auth/admin/dashboard");
       }
     } catch (err) {
@@ -136,22 +136,7 @@ export default function RegisterForm() {
                   Signing in...
                 </>
               ) : (
-                <>
-                  Sign In
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="white"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </>
+                <>Sign In</>
               )}
             </button>
           </form>
