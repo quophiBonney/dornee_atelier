@@ -15,7 +15,7 @@ connectDB();
 
 const app = express();
 const allowedOrigins = [
-  "https://wwww.dorneeatelier.com",
+  "https://www.dorneeatelier.com",
   "https://dorneeatelier.com",
   "http://dorneeatelier.com",
   "https://dorneeatelier.com/auth/login",
