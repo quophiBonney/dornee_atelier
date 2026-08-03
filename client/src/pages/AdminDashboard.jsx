@@ -829,11 +829,10 @@ const ACTIVITY_DATA = {
 function KpiCard({
   label,
   value,
-  delta,
-  positive,
   icon: Icon,
   delay,
   suffix = "",
+  loading = false,
 }) {
   const animated = useCountUp(value);
   return (
@@ -851,13 +850,6 @@ function KpiCard({
         >
           <Icon size={16} style={{ color: "var(--cyan)" }} />
         </div>
-        <span
-          className="flex items-center gap-1 text-xs font-semibold"
-          style={{ color: positive ? "var(--success)" : "var(--danger)" }}
-        >
-          {positive ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-          {delta}
-        </span>
       </div>
       <p
         className="mt-4 text-xs font-medium uppercase tracking-wider"
@@ -869,8 +861,7 @@ function KpiCard({
         className="font-display font-mono mt-1 text-3xl font-semibold"
         style={{ color: "var(--text-1)" }}
       >
-        {animated.toLocaleString()}
-        {suffix}
+        {loading ? "···" : `${animated.toLocaleString()}${suffix}`}
       </p>
     </div>
   );
@@ -1018,45 +1009,50 @@ function ChannelSplit() {
 }
 
 function OverviewPage({ theme }) {
-  const activeUsers = USERS.filter((u) => u.status === "active").length;
-  const today = APPOINTMENTS.filter((a) => a.status === "confirmed").length;
-  const openEnquiries = ENQUIRIES.filter((e) => e.status !== "resolved").length;
+  const dispatch = useDispatch();
+  const { users, loading: usersLoading } = useSelector((state) => state.auth);
+  const { appointments, loading: appointmentsLoading } = useSelector(
+    (state) => state.appointment,
+  );
+  const { contacts, loading: contactsLoading } = useSelector(
+    (state) => state.contact,
+  );
+
+  useEffect(() => {
+    dispatch(fetchAllUsers());
+    dispatch(fetchAppointments());
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
+  const userCount = (users || []).length;
+  const appointmentCount = (appointments || []).length;
+  const enquiryCount = (contacts || []).length;
+
+  const loading = usersLoading || appointmentsLoading || contactsLoading;
 
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         <KpiCard
-          label="Active users"
-          value={activeUsers}
-          delta="4.2%"
-          positive
+          label="Users"
+          value={userCount}
+          loading={loading}
           icon={UsersIcon}
           delay={0}
         />
         <KpiCard
-          label="Appointments confirmed"
-          value={today}
-          delta="2.8%"
-          positive
+          label="Appointments"
+          value={appointmentCount}
+          loading={loading}
           icon={CalendarClock}
           delay={60}
         />
         <KpiCard
-          label="Open enquiries"
-          value={openEnquiries}
-          delta="1.1%"
-          positive={false}
+          label="Enquiries"
+          value={enquiryCount}
+          loading={loading}
           icon={Inbox}
           delay={120}
-        />
-        <KpiCard
-          label="Response rate"
-          value={94}
-          suffix="%"
-          delta="0.6%"
-          positive
-          icon={CheckCircle2}
-          delay={180}
         />
       </div>
 
@@ -2138,10 +2134,14 @@ export default function Dashboard() {
 
   useEffect(() => setQuery(""), [page]);
 
+  const { users } = useSelector((state) => state.auth);
+  const { appointments } = useSelector((state) => state.appointment);
+  const { contacts } = useSelector((state) => state.contact);
+
   const counts = {
-    users: USERS.length,
-    appointments: APPOINTMENTS.filter((a) => a.status !== "cancelled").length,
-    enquiries: ENQUIRIES.filter((e) => e.status !== "resolved").length,
+    users: (users || []).length,
+    appointments: (appointments || []).length,
+    enquiries: (contacts || []).length,
   };
 
   return (
