@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import {
   Search,
   LayoutGrid,
@@ -806,25 +814,79 @@ function DataTable({
 /*  OVERVIEW PAGE                                                           */
 /* ======================================================================= */
 
-const ACTIVITY_DATA = {
-  "7D": [
-    { name: "Mon", value: 24 },
-    { name: "Tue", value: 38 },
-    { name: "Wed", value: 30 },
-    { name: "Thu", value: 46 },
-    { name: "Fri", value: 41 },
-    { name: "Sat", value: 18 },
-    { name: "Sun", value: 14 },
-  ],
-  "30D": Array.from({ length: 10 }).map((_, i) => ({
-    name: `${i * 3 + 1}`,
-    value: 20 + Math.round(seededRand(i + 1) * 40),
-  })),
-  "90D": Array.from({ length: 12 }).map((_, i) => ({
-    name: `W${i + 1}`,
-    value: 100 + Math.round(seededRand(i + 20) * 160),
-  })),
-};
+const CHART_RANGES = [
+  { key: "daily", label: "Daily" },
+  { key: "weekly", label: "Weekly" },
+  { key: "monthly", label: "Monthly" },
+  { key: "yearly", label: "Yearly" },
+];
+
+const RANGE_PERIODS = { daily: 7, weekly: 8, monthly: 12, yearly: 5 };
+
+function startOfPeriod(date, range) {
+  const d = new Date(date);
+  if (range === "daily") {
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  }
+  if (range === "weekly") {
+    const day = (d.getDay() + 6) % 7; // Monday = 0
+    const mon = new Date(d);
+    mon.setDate(d.getDate() - day);
+    mon.setHours(0, 0, 0, 0);
+    return mon.getTime();
+  }
+  if (range === "monthly") {
+    return new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+  }
+  return new Date(d.getFullYear(), 0, 1).getTime();
+}
+
+function labelForPeriod(startTs, range) {
+  const d = new Date(startTs);
+  if (range === "daily") {
+    return d.toLocaleDateString(undefined, { weekday: "short" });
+  }
+  if (range === "weekly") {
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+  if (range === "monthly") {
+    return d.toLocaleDateString(undefined, { month: "short" });
+  }
+  return String(d.getFullYear());
+}
+
+function buildAppointmentChartData(appointments, range) {
+  const counts = new Map();
+
+  for (const a of appointments || []) {
+    if (!a) continue;
+    const raw = a.createdAt || a.date;
+    const ts = raw ? new Date(raw).getTime() : Date.now();
+    if (Number.isNaN(ts)) continue;
+    const start = startOfPeriod(ts, range);
+    counts.set(start, (counts.get(start) || 0) + 1);
+  }
+
+  const nowStart = startOfPeriod(Date.now(), range);
+  const cursor = new Date(nowStart);
+  const total = RANGE_PERIODS[range] || 7;
+  const buckets = [];
+
+  for (let i = total - 1; i >= 0; i--) {
+    const d = new Date(cursor);
+    if (range === "daily") d.setDate(cursor.getDate() - i);
+    else if (range === "weekly") d.setDate(cursor.getDate() - i * 7);
+    else if (range === "monthly") d.setMonth(cursor.getMonth() - i);
+    else d.setFullYear(cursor.getFullYear() - i);
+
+    const start = startOfPeriod(d, range);
+    buckets.push({
+      name: labelForPeriod(start, range),
+      value: counts.get(start) || 0,
+    });
+  }
+  return buckets;
+}
 
 function KpiCard({
   label,
@@ -867,9 +929,12 @@ function KpiCard({
   );
 }
 
-function ActivityChart({ theme }) {
-  const [range, setRange] = useState("7D");
-  const data = ACTIVITY_DATA[range];
+function ActivityChart({ theme, appointments }) {
+  const [range, setRange] = useState("daily");
+  const data = useMemo(
+    () => buildAppointmentChartData(appointments, range),
+    [appointments, range],
+  );
   const isLight = theme === "light";
   const tickColor = isLight ? "#8891a3" : "#525c74";
   const tooltipBg = isLight ? "#ffffff" : "#0a0c16";
@@ -880,51 +945,66 @@ function ActivityChart({ theme }) {
       className="fade-up glass-strong hover-lift rounded-2xl p-5 lg:col-span-2"
       style={{ animationDelay: "180ms" }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3
             className="text-sm font-semibold"
             style={{ color: "var(--text-1)" }}
           >
-            Operations activity
+            Appointment statistics
           </h3>
           <p className="mt-0.5 text-xs" style={{ color: "var(--text-3)" }}>
-            Combined users, appointments and enquiries
+            Booking volume across the salon
           </p>
         </div>
         <div
-          className="flex items-center gap-1 rounded-lg p-1"
+          className="flex flex-wrap items-center gap-1 rounded-lg p-1"
           style={{ background: "var(--chip-bg)" }}
         >
-          {Object.keys(ACTIVITY_DATA).map((r) => (
+          {CHART_RANGES.map((r) => (
             <button
-              key={r}
-              onClick={() => setRange(r)}
+              key={r.key}
+              onClick={() => setRange(r.key)}
               className="rounded-md px-2.5 py-1 text-xs font-medium transition-colors"
               style={{
                 background:
-                  range === r ? "rgba(0,229,255,0.14)" : "transparent",
-                color: range === r ? "var(--cyan)" : "var(--text-3)",
+                  range === r.key ? "rgba(0,229,255,0.14)" : "transparent",
+                color: range === r.key ? "var(--cyan)" : "var(--text-3)",
               }}
             >
-              {r}
+              {r.label}
             </button>
           ))}
         </div>
       </div>
       <div className="mt-4 h-56">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data}>
+          <AreaChart
+            data={data}
+            margin={{ top: 5, right: 5, left: -20, bottom: 0 }}
+          >
             <defs>
               <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="#00e5ff" stopOpacity={0.35} />
                 <stop offset="100%" stopColor="#00e5ff" stopOpacity={0} />
               </linearGradient>
             </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={isLight ? "#e5e9f2" : "#1c2030"}
+              vertical={false}
+            />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
+              tick={{ fill: tickColor, fontSize: 11 }}
+            />
+            <YAxis
+              allowDecimals={false}
+              axisLine={false}
+              tickLine={false}
+              width={30}
               tick={{ fill: tickColor, fontSize: 11 }}
             />
             <Tooltip
@@ -936,6 +1016,7 @@ function ActivityChart({ theme }) {
                 fontSize: 12,
               }}
               labelStyle={{ color: tooltipLabel }}
+              formatter={(value) => [`${value}`, "Appointments"]}
             />
             <Area
               type="monotone"
@@ -1057,7 +1138,7 @@ function OverviewPage({ theme }) {
       </div>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <ActivityChart theme={theme} />
+        <ActivityChart theme={theme} appointments={appointments} />
         <ChannelSplit />
       </div>
 
