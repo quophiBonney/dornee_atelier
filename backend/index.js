@@ -14,30 +14,38 @@ dotenv.config();
 connectDB();
 
 const app = express();
-const allowedOrigins = [
-  "https://www.dorneeatelier.com",
-  "https://dorneeatelier.com",
-  "http://dorneeatelier.com",
-  "https://dorneeatelier.com/auth/login",
-  "http://localhost:5173",
-  "https://dornee-atelier.vercel.app",
-  "https://dorneeatelier.com/",
-  "*",
-];
+// const allowedOrigins = [
+//   "https://www.dorneeatelier.com",
+//   "https://dorneeatelier.com",
+//   "http://dorneeatelier.com",
+//   "https://dorneeatelier.com/auth/login",
+//   "http://localhost:5173",
+//   "https://dornee-atelier.vercel.app",
+//   "https://dorneeatelier.com/",
+//   "*",
+// ];
 
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (!origin) return callback(null, true);
+
+//       if (allowedOrigins.indexOf(origin) === -1) {
+//         var msg =
+//           "The CORS policy for this site does not allow access from the specified Origin.";
+//         return callback(new Error(msg), false);
+//       }
+//       return callback(null, true);
+//     },
+//     credentials: true,
+//   }),
+// );
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(express.json());
