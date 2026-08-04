@@ -25,8 +25,6 @@ import {
   ArrowUpDown,
   SlidersHorizontal,
   MoreVertical,
-  TrendingUp,
-  TrendingDown,
   CheckCircle2,
   Clock,
   XCircle,
@@ -250,7 +248,12 @@ function StatusBadge({ status }) {
   );
 }
 
-const CHANNEL_ICON = { Email: Mail, Phone: Phone, "Live Chat": MessageCircle };
+const CHANNEL_ICON = {
+  Email: Mail,
+  Phone: Phone,
+  "Live Chat": MessageCircle,
+  "Web Form": FormInput,
+};
 
 const NAV_ITEMS = [
   { key: "overview", label: "Overview", icon: LayoutGrid },
@@ -861,24 +864,33 @@ function buildAppointmentChartData(appointments, range) {
 
   for (const a of appointments || []) {
     if (!a) continue;
-    const raw = a.createdAt || a.date;
+    // Prefer the scheduled appointment date over the creation timestamp
+    const raw = a.date || a.createdAt;
     const ts = raw ? new Date(raw).getTime() : Date.now();
     if (Number.isNaN(ts)) continue;
     const start = startOfPeriod(ts, range);
     counts.set(start, (counts.get(start) || 0) + 1);
   }
 
-  const nowStart = startOfPeriod(Date.now(), range);
-  const cursor = new Date(nowStart);
+  const now = new Date();
+  const cursor = new Date(now);
   const total = RANGE_PERIODS[range] || 7;
   const buckets = [];
 
   for (let i = total - 1; i >= 0; i--) {
     const d = new Date(cursor);
-    if (range === "daily") d.setDate(cursor.getDate() - i);
-    else if (range === "weekly") d.setDate(cursor.getDate() - i * 7);
-    else if (range === "monthly") d.setMonth(cursor.getMonth() - i);
-    else d.setFullYear(cursor.getFullYear() - i);
+    if (range === "daily") {
+      // Current week: Monday -> Sunday
+      const day = (cursor.getDay() + 6) % 7; // Monday = 0
+      d.setDate(cursor.getDate() - day - i);
+      d.setHours(0, 0, 0, 0);
+    } else if (range === "weekly") {
+      d.setDate(cursor.getDate() - i * 7);
+    } else if (range === "monthly") {
+      d.setMonth(cursor.getMonth() - i);
+    } else {
+      d.setFullYear(cursor.getFullYear() - i);
+    }
 
     const start = startOfPeriod(d, range);
     buckets.push({
@@ -1035,10 +1047,11 @@ function ActivityChart({ theme, appointments }) {
   );
 }
 
-function ChannelSplit() {
+function ChannelSplit({ contacts }) {
+  // Aggregate real contact enquiries by their intake channel
   const counts = CHANNELS.map((ch) => ({
     name: ch,
-    value: ENQUIRIES.filter((e) => e.channel === ch).length,
+    value: (contacts || []).filter((e) => e.channel === ch).length,
   }));
   const max = Math.max(...counts.map((c) => c.value));
   return (
@@ -1075,7 +1088,7 @@ function ChannelSplit() {
                 <div
                   className="h-full rounded-full"
                   style={{
-                    width: `${(c.value / max) * 100}%`,
+                    width: `${max ? (c.value / max) * 100 : 0}%`,
                     background:
                       "linear-gradient(90deg, var(--violet), var(--cyan))",
                     transition: "width .8s cubic-bezier(.16,1,.3,1)",
@@ -1140,7 +1153,7 @@ function OverviewPage({ theme }) {
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <ActivityChart theme={theme} appointments={appointments} />
-        <ChannelSplit />
+        <ChannelSplit contacts={contacts} />
       </div>
 
       <div
