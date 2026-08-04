@@ -26,10 +26,12 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: [true, "Service is required"],
       enum: [
-        "Custom Design",
-        "Fitting Consultation",
-        "Personal Styling",
-        "Alterations",
+        "Kente Dress",
+        "Arewa Dress",
+        "Bridal Gowns",
+        "Ready To Wear",
+        "Cocktail Dress",
+        "Evening Dress",
       ],
     },
     date: {
