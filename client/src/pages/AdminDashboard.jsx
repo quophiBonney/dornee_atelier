@@ -877,6 +877,19 @@ function buildAppointmentChartData(appointments, range) {
   const total = RANGE_PERIODS[range] || 7;
   const buckets = [];
 
+  if (range === "monthly") {
+    // Full calendar year: January -> December
+    for (let month = 0; month < 12; month++) {
+      const d = new Date(cursor.getFullYear(), month, 1);
+      const start = startOfPeriod(d, range);
+      buckets.push({
+        name: labelForPeriod(start, range),
+        value: counts.get(start) || 0,
+      });
+    }
+    return buckets;
+  }
+
   for (let i = total - 1; i >= 0; i--) {
     const d = new Date(cursor);
     if (range === "daily") {
@@ -886,8 +899,6 @@ function buildAppointmentChartData(appointments, range) {
       d.setHours(0, 0, 0, 0);
     } else if (range === "weekly") {
       d.setDate(cursor.getDate() - i * 7);
-    } else if (range === "monthly") {
-      d.setMonth(cursor.getMonth() - i);
     } else {
       d.setFullYear(cursor.getFullYear() - i);
     }
@@ -955,7 +966,7 @@ function ActivityChart({ theme, appointments }) {
 
   return (
     <div
-      className="fade-up glass-strong hover-lift rounded-2xl p-5 lg:col-span-2"
+      className="fade-up glass-strong hover-lift rounded-2xl p-5"
       style={{ animationDelay: "180ms" }}
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1047,62 +1058,6 @@ function ActivityChart({ theme, appointments }) {
   );
 }
 
-function ChannelSplit({ contacts }) {
-  // Aggregate real contact enquiries by their intake channel
-  const counts = CHANNELS.map((ch) => ({
-    name: ch,
-    value: (contacts || []).filter((e) => e.channel === ch).length,
-  }));
-  const max = Math.max(...counts.map((c) => c.value));
-  return (
-    <div
-      className="fade-up glass-strong hover-lift rounded-2xl p-5"
-      style={{ animationDelay: "220ms" }}
-    >
-      <h3 className="text-sm font-semibold" style={{ color: "var(--text-1)" }}>
-        Enquiry channels
-      </h3>
-      <p className="mt-0.5 text-xs" style={{ color: "var(--text-3)" }}>
-        Volume by intake source
-      </p>
-      <div className="mt-5 space-y-4">
-        {counts.map((c) => {
-          const Icon = CHANNEL_ICON[c.name];
-          return (
-            <div key={c.name}>
-              <div className="mb-1.5 flex items-center justify-between text-xs">
-                <span
-                  className="flex items-center gap-1.5"
-                  style={{ color: "var(--text-2)" }}
-                >
-                  <Icon size={12} /> {c.name}
-                </span>
-                <span className="font-mono" style={{ color: "var(--text-3)" }}>
-                  {c.value}
-                </span>
-              </div>
-              <div
-                className="h-1.5 w-full overflow-hidden rounded-full"
-                style={{ background: "var(--chip-bg)" }}
-              >
-                <div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${max ? (c.value / max) * 100 : 0}%`,
-                    background:
-                      "linear-gradient(90deg, var(--violet), var(--cyan))",
-                    transition: "width .8s cubic-bezier(.16,1,.3,1)",
-                  }}
-                />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function OverviewPage({ theme }) {
   const dispatch = useDispatch();
   const { users, loading: usersLoading } = useSelector((state) => state.auth);
@@ -1151,10 +1106,7 @@ function OverviewPage({ theme }) {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <ActivityChart theme={theme} appointments={appointments} />
-        <ChannelSplit contacts={contacts} />
-      </div>
+      <ActivityChart theme={theme} appointments={appointments} />
 
       <div
         className="fade-up glass-strong hover-lift rounded-2xl p-5"
