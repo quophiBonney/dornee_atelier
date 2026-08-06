@@ -52,28 +52,6 @@ export function TopBar({
           </button>
         </div>
       </div>
-
-      <div className="relative overflow-hidden rounded-lg">
-        <div className="relative flex items-center gap-2 rounded-lg px-3 py-2.5 vtx-input">
-          <Search size={16} style={{ color: "var(--text-3)" }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Search ${page === "overview" ? "everything" : page}…`}
-            className="w-full bg-transparent text-sm outline-none"
-            style={{ color: "var(--text-1)" }}
-          />
-          <kbd
-            className="font-mono rounded border px-1.5 py-0.5 text-[10px]"
-            style={{
-              borderColor: "var(--panel-border)",
-              color: "var(--text-3)",
-            }}
-          >
-            ⌘K
-          </kbd>
-        </div>
-      </div>
     </div>
   );
 }
