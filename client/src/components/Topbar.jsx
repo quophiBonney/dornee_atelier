@@ -40,16 +40,6 @@ export function TopBar({
 
         <div className="flex shrink-0 items-center gap-2">
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-          <button
-            className="relative hidden h-9 w-9 items-center justify-center rounded-lg sm:flex glass hover-lift"
-            style={{ color: "var(--text-2)" }}
-          >
-            <Bell size={16} />
-            <span
-              className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full pulse-dot"
-              style={{ background: "var(--danger)" }}
-            />
-          </button>
         </div>
       </div>
     </div>
