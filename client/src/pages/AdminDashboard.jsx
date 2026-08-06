@@ -912,6 +912,227 @@ function buildAppointmentChartData(appointments, range) {
   return buckets;
 }
 
+function PendingAppointmentsModal({ open, appointments, onClose }) {
+  if (!open) return null;
+
+  const rows = (appointments || []).map((a) => ({
+    id: a._id,
+    client: a.name || "—",
+    email: a.email || "—",
+    phone: a.phone || "—",
+    service: a.service || "—",
+    date: a.date ? new Date(a.date) : null,
+    time: a.createdAt
+      ? new Date(a.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "—",
+    amount: a.amount ? `₵${a.amount}` : "—",
+  }));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl glass-strong fade-up"
+        style={{ borderColor: "var(--panel-border)" }}
+      >
+        <div
+          className="flex items-center justify-between border-b p-5"
+          style={{ borderColor: "var(--panel-border)" }}
+        >
+          <div>
+            <h3
+              className="text-lg font-semibold"
+              style={{ color: "var(--text-1)" }}
+            >
+              Pending Appointments
+            </h3>
+            <p className="mt-0.5 text-sm" style={{ color: "var(--text-2)" }}>
+              {rows.length} appointment{rows.length === 1 ? "" : "s"} awaiting
+              approval
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-md p-1.5 hover:opacity-70"
+            style={{ color: "var(--text-3)" }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="max-h-[60vh] overflow-y-auto scrollbar-thin p-5">
+          {rows.length === 0 ? (
+            <div
+              className="py-12 text-center text-sm"
+              style={{ color: "var(--text-3)" }}
+            >
+              No pending appointments right now.
+            </div>
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr>
+                      {["Client", "Service", "Date", "Time", "Amount"].map(
+                        (label) => (
+                          <th
+                            key={label}
+                            className="whitespace-nowrap px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wider"
+                            style={{ color: "var(--text-3)" }}
+                          >
+                            {label}
+                          </th>
+                        ),
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r, i) => (
+                      <tr
+                        key={r.id}
+                        className="row-hover fade-up"
+                        style={{
+                          borderTop: "1px solid var(--panel-border)",
+                          animationDelay: `${i * 30}ms`,
+                        }}
+                      >
+                        <td
+                          className="whitespace-nowrap px-4 py-3"
+                          style={{ color: "var(--text-1)" }}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              className="font-mono flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold"
+                              style={{
+                                background: "rgba(0,229,255,0.14)",
+                                color: "var(--cyan)",
+                              }}
+                            >
+                              {r.client.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="font-medium">{r.client}</p>
+                              <p
+                                className="text-xs"
+                                style={{ color: "var(--text-3)" }}
+                              >
+                                {r.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-4 py-3"
+                          style={{ color: "var(--text-2)" }}
+                        >
+                          {r.service}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-4 py-3"
+                          style={{ color: "var(--text-2)" }}
+                        >
+                          {r.date ? fmtDate(r.date) : "—"}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-4 py-3"
+                          style={{ color: "var(--text-2)" }}
+                        >
+                          {r.time}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-4 py-3"
+                          style={{ color: "var(--text-2)" }}
+                        >
+                          {r.amount}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile card list */}
+              <div
+                className="divide-y md:hidden"
+                style={{ borderColor: "var(--panel-border)" }}
+              >
+                {rows.map((r, i) => (
+                  <div
+                    key={r.id}
+                    className="fade-up space-y-1.5 py-3"
+                    style={{ animationDelay: `${i * 30}ms` }}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="font-mono flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-semibold"
+                        style={{
+                          background: "rgba(0,229,255,0.14)",
+                          color: "var(--cyan)",
+                        }}
+                      >
+                        {r.client.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: "var(--text-1)" }}
+                        >
+                          {r.client}
+                        </p>
+                        <p
+                          className="text-xs"
+                          style={{ color: "var(--text-3)" }}
+                        >
+                          {r.email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 pl-10 text-sm">
+                      <span style={{ color: "var(--text-3)" }}>Service</span>
+                      <span style={{ color: "var(--text-1)" }}>
+                        {r.service}
+                      </span>
+                      <span style={{ color: "var(--text-3)" }}>Date</span>
+                      <span style={{ color: "var(--text-1)" }}>
+                        {r.date ? fmtDate(r.date) : "—"}
+                      </span>
+                      <span style={{ color: "var(--text-3)" }}>Time</span>
+                      <span style={{ color: "var(--text-1)" }}>{r.time}</span>
+                      <span style={{ color: "var(--text-3)" }}>Amount</span>
+                      <span style={{ color: "var(--text-1)" }}>{r.amount}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div
+          className="flex items-center justify-end border-t p-4"
+          style={{ borderColor: "var(--panel-border)" }}
+        >
+          <button
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm font-medium"
+            style={{ color: "var(--text-2)" }}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function KpiCard({
   label,
   value,
@@ -919,11 +1140,15 @@ function KpiCard({
   delay,
   suffix = "",
   loading = false,
+  onClick,
 }) {
   const animated = useCountUp(value);
   return (
     <div
-      className="fade-up glass-strong hover-lift rounded-2xl p-5"
+      onClick={onClick}
+      className={`fade-up glass-strong hover-lift rounded-2xl p-5 ${
+        onClick ? "cursor-pointer" : ""
+      }`}
       style={{ animationDelay: `${delay}ms` }}
     >
       <div className="flex items-start justify-between">
@@ -1067,6 +1292,7 @@ function OverviewPage({ theme }) {
   const { contacts, loading: contactsLoading } = useSelector(
     (state) => state.contact,
   );
+  const [pendingModalOpen, setPendingModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAllUsers());
@@ -1077,6 +1303,9 @@ function OverviewPage({ theme }) {
   const userCount = (users || []).length;
   const appointmentCount = (appointments || []).length;
   const enquiryCount = (contacts || []).length;
+  const pendingAppointments = (appointments || []).filter(
+    (a) => a.status === "pending",
+  );
 
   const loading = usersLoading || appointmentsLoading || contactsLoading;
 
@@ -1096,6 +1325,7 @@ function OverviewPage({ theme }) {
           loading={loading}
           icon={CalendarClock}
           delay={60}
+          onClick={() => setPendingModalOpen(true)}
         />
         <KpiCard
           label="Enquiries"
@@ -1105,6 +1335,12 @@ function OverviewPage({ theme }) {
           delay={120}
         />
       </div>
+
+      <PendingAppointmentsModal
+        open={pendingModalOpen}
+        appointments={pendingAppointments}
+        onClose={() => setPendingModalOpen(false)}
+      />
 
       <ActivityChart theme={theme} appointments={appointments} />
 

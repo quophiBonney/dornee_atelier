@@ -1,7 +1,10 @@
 # TODO
 
-## Task: Dashboard overview - Recent activity should show recent 10 appointments from DB
+## Task: Clicking the appointments card on dashboard overview shows a modal of pending appointments
 
-- [x] Edit "Recent activity" section in `client/src/pages/AdminDashboard.jsx` to display the recent 10 appointments from the database (from `state.appointment.appointments`) instead of dummy static data.
-- [x] Update the heading to "Recent appointments" and show a loading state while data is loading.
-- [ ] Verify the dashboard renders real appointments.
+- [x] Add `onClick` prop support to `KpiCard` component in `client/src/pages/AdminDashboard.jsx`
+- [x] Make the "Appointments" KpiCard on the overview clickable
+- [x] Add local `pendingModalOpen` state to `OverviewPage`
+- [x] Create `PendingAppointmentsModal` component showing only pending appointments in a table
+- [x] Render the modal in `OverviewPage`
+- [ ] Verify the modal opens and shows only pending appointments
