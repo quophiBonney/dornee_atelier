@@ -479,7 +479,7 @@ function TopBar({
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-lg">
+      {/* <div className="relative overflow-hidden rounded-lg">
         <div className="relative flex items-center gap-2 rounded-lg px-3 py-2.5 vtx-input scanline">
           <Search size={16} style={{ color: "var(--text-3)" }} />
           <input
@@ -499,7 +499,7 @@ function TopBar({
             ⌘K
           </kbd>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
