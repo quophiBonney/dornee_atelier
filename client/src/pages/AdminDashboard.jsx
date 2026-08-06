@@ -1112,20 +1112,31 @@ function OverviewPage({ theme }) {
         className="fade-up glass-strong hover-lift rounded-2xl p-5"
         style={{ animationDelay: "260ms" }}
       >
-        <h3
-          className="mb-4 text-sm font-semibold"
-          style={{ color: "var(--text-1)" }}
-        >
-          Recent activity
-        </h3>
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h3
+              className="text-sm font-semibold"
+              style={{ color: "var(--text-1)" }}
+            >
+              Recent appointments
+            </h3>
+            <p className="mt-0.5 text-xs" style={{ color: "var(--text-3)" }}>
+              Latest 10 bookings from the database
+            </p>
+          </div>
+          <span
+            className="font-mono text-[10px]"
+            style={{ color: "var(--text-3)" }}
+          >
+            {appointmentsLoading
+              ? "Loading…"
+              : `${(appointments || []).length} total`}
+          </span>
+        </div>
         <div className="space-y-3">
-          {[
-            ...APPOINTMENTS.slice(0, 2),
-            ...ENQUIRIES.slice(0, 2),
-            ...USERS.slice(0, 1),
-          ].map((item, i) => (
+          {(appointments || []).slice(0, 10).map((item, i) => (
             <div
-              key={i}
+              key={item._id || i}
               className="row-hover flex items-center gap-3 rounded-lg px-2 py-2"
             >
               <div
@@ -1142,16 +1153,29 @@ function OverviewPage({ theme }) {
                   className="truncate text-sm"
                   style={{ color: "var(--text-1)" }}
                 >
-                  {item.client || item.name} —{" "}
-                  {item.service || item.subject || item.role}
+                  {item.name} — {item.service}
                 </p>
                 <p className="text-xs" style={{ color: "var(--text-3)" }}>
-                  {fmtDate(item.date || item.received || item.joined)}
+                  {fmtDate(
+                    item.date
+                      ? new Date(item.date)
+                      : item.createdAt
+                        ? new Date(item.createdAt)
+                        : new Date(),
+                  )}
                 </p>
               </div>
               <StatusBadge status={item.status} />
             </div>
           ))}
+          {(appointments || []).length === 0 && !appointmentsLoading && (
+            <p
+              className="py-4 text-center text-sm"
+              style={{ color: "var(--text-3)" }}
+            >
+              No appointments yet.
+            </p>
+          )}
         </div>
       </div>
     </div>
